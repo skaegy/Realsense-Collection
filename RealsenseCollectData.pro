@@ -26,11 +26,13 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 SOURCES += \
         main.cpp \
         rscollectdata.cpp \
-        rscapturethread.cpp
+        rscapturethread.cpp \
+    rssavethread.cpp
 
 HEADERS += \
         rscollectdata.h \
-    rscapturethread.h
+    rscapturethread.h \
+    rssavethread.h
 
 FORMS += \
         rscollectdata.ui
