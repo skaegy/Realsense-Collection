@@ -56,7 +56,6 @@ signals:
     void sendDepthFiltered(cv::Mat depth_mat);
     void sendDepthShow(cv::Mat depth_show_mat);
 private:
-
     QMutex mutex;
     cv::Mat rsDepthFrame2Mat(rs2::frame DepthFrame);
     cv::Mat rsColorFrame2Mat(rs2::frame ColorFrame);

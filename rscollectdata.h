@@ -21,6 +21,7 @@
 #include <opencv2/core/core.hpp>
 #include <rs.hpp>
 #include "rscapturethread.h"
+#include "rssavethread.h"
 
 
 namespace Ui {
@@ -62,6 +63,8 @@ private:
     QBluetoothLocalDevice *localDevice;
     rsCaptureThread* rsCapture;
     rsFilteredThread* rsFiltered;
+    rssavethread* rsSave;
+
     // parameters
     bool save_flag = false;
     int frame_cnt = 1;
