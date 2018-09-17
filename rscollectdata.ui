@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>rsCollectData</class>
+ <widget class="QWidget" name="rsCollectData">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1131</width>
+    <height>622</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>rsCollectData</string>
+  </property>
+  <widget class="QPushButton" name="OpenRSButton">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>40</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open RS</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="RGBImg">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>20</y>
+     <width>81</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>1</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>RGB image</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>487</y>
+     <width>86</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>640*360</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="Label_rgb_resolution">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>490</y>
+     <width>101</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>RGB resolution</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>480</y>
+     <width>101</width>
+     <height>85</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QCheckBox" name="checkDepth">
+        <property name="text">
+         <string>Depth</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkRGB">
+      <property name="text">
+       <string>RGB</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkPointCloud">
+      <property name="text">
+       <string>Pointcloud</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="RGBBox">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>20</y>
+     <width>320</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(136, 138, 133);</string>
+   </property>
+   <property name="inputMethodHints">
+    <set>Qt::ImhNone</set>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="DepthBox">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>220</y>
+     <width>320</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border-color: rgb(32, 74, 135);
+background-color: rgb(136, 138, 133);</string>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <widget class="QLabel" name="DepthImg">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>91</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>1</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Depth image</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="Label_depth_resolution">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>530</y>
+     <width>121</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Depth resolution</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_openRSThread">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>90</y>
+     <width>151</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open RS Thread</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_closeRSThread">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>130</y>
+     <width>151</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Close RS Thread</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="LabelTime">
+   <property name="geometry">
+    <rect>
+     <x>660</x>
+     <y>30</y>
+     <width>81</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Time label</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_saveRGBD">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>90</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Save RGBD </string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_stopSaveRGBD">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>130</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop Save</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_ScanBLE">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>400</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Scan</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_ClearBLE">
+   <property name="geometry">
+    <rect>
+     <x>616</x>
+     <y>400</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_QuitBLE">
+   <property name="geometry">
+    <rect>
+     <x>720</x>
+     <y>400</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Quit BLE</string>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="List_BLE">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>180</y>
+     <width>301</width>
+     <height>192</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_RescanBLE">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>440</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Re-scan</string>
+   </property>
+  </widget>
+  <zorder>RGBBox</zorder>
+  <zorder>OpenRSButton</zorder>
+  <zorder>RGBImg</zorder>
+  <zorder>comboBox</zorder>
+  <zorder>Label_rgb_resolution</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>DepthBox</zorder>
+  <zorder>Label_depth_resolution</zorder>
+  <zorder>Button_openRSThread</zorder>
+  <zorder>Button_closeRSThread</zorder>
+  <zorder>LabelTime</zorder>
+  <zorder>Button_saveRGBD</zorder>
+  <zorder>Button_stopSaveRGBD</zorder>
+  <zorder>Button_ScanBLE</zorder>
+  <zorder>Button_ClearBLE</zorder>
+  <zorder>Button_QuitBLE</zorder>
+  <zorder>List_BLE</zorder>
+  <zorder>Button_RescanBLE</zorder>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>Button_ClearBLE</sender>
+   <signal>clicked()</signal>
+   <receiver>List_BLE</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>660</x>
+     <y>412</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>660</x>
+     <y>275</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
