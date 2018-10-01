@@ -15,8 +15,6 @@
 #define IMG_HEIGHT 480
 #define IN_FRAME 30
 
-
-
 class rsCaptureThread : public QThread
 {
     Q_OBJECT

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui bluetooth
+QT       += core gui bluetooth printsupport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 requires(qtConfig(listwidget))
 
@@ -27,12 +27,20 @@ SOURCES += \
         main.cpp \
         rscollectdata.cpp \
         rscapturethread.cpp \
-    rssavethread.cpp
+    rssavethread.cpp \
+    characteristicinfo.cpp \
+    deviceinfo.cpp \
+    serviceinfo.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
         rscollectdata.h \
     rscapturethread.h \
-    rssavethread.h
+    rssavethread.h \
+    characteristicinfo.h \
+    deviceinfo.h \
+    serviceinfo.h \
+    qcustomplot.h
 
 FORMS += \
         rscollectdata.ui
@@ -40,10 +48,10 @@ FORMS += \
 INCLUDEPATH += /usr/local/include \
                 /usr/local/include/opencv \
                 /usr/local/include/opencv2 \
-                /usr/include/librealsense2 \   #laptop
-                /usr/include/librealsense2/hpp #laptop
-                #/usr/local/include/librealsense2 \   #pc
-                #/usr/local/include/librealsense2/hpp #pc
+                #/usr/include/librealsense2 \   #laptop
+                #/usr/include/librealsense2/hpp #laptop
+                /usr/local/include/librealsense2 \   #pc
+                /usr/local/include/librealsense2/hpp #pc
 
 
 
@@ -51,7 +59,7 @@ LIBS += /usr/local/lib/libopencv_highgui.so \
         /usr/local/lib/libopencv_core.so    \
         /usr/local/lib/libopencv_imgcodecs.so    \
         /usr/local/lib/libopencv_imgproc.so \
-        /usr/lib/x86_64-linux-gnu/librealsense2.so #laptop
-        #/usr/local/lib/librealsense2.so #pc
+        #/usr/lib/x86_64-linux-gnu/librealsense2.so #laptop
+        /usr/local/lib/librealsense2.so #pc
 
 

@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QTextStream>
 #include <QFileDialog>
+#include <QImageWriter>
 #include <QDir>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>

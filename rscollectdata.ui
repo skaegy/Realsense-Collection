@@ -7,48 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>1131</width>
-    <height>622</height>
+    <height>846</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>rsCollectData</string>
   </property>
-  <widget class="QPushButton" name="OpenRSButton">
-   <property name="geometry">
-    <rect>
-     <x>510</x>
-     <y>40</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Open RS</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="RGBImg">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>20</y>
-     <width>81</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>1</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>RGB image</string>
-   </property>
-  </widget>
   <widget class="QComboBox" name="comboBox">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>487</y>
+     <x>160</x>
+     <y>127</y>
      <width>86</width>
      <height>25</height>
     </rect>
@@ -62,21 +31,21 @@
   <widget class="QLabel" name="Label_rgb_resolution">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>490</y>
-     <width>101</width>
+     <x>110</x>
+     <y>130</y>
+     <width>41</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>RGB resolution</string>
+    <string>RGB </string>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>480</y>
+     <x>100</x>
+     <y>20</y>
      <width>101</width>
      <height>85</height>
     </rect>
@@ -112,10 +81,10 @@
   <widget class="QGroupBox" name="RGBBox">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>20</y>
-     <width>320</width>
-     <height>181</height>
+     <x>60</x>
+     <y>220</y>
+     <width>461</width>
+     <height>291</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -127,14 +96,32 @@
    <property name="title">
     <string/>
    </property>
+   <widget class="QLabel" name="RGBImg">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>1</y>
+      <width>81</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>1</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>RGB image</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="DepthBox">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>220</y>
-     <width>320</width>
-     <height>181</height>
+     <x>60</x>
+     <y>530</y>
+     <width>461</width>
+     <height>281</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -166,60 +153,47 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QLabel" name="Label_depth_resolution">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>530</y>
-     <width>121</width>
+     <x>110</x>
+     <y>170</y>
+     <width>51</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Depth resolution</string>
+    <string>Depth</string>
    </property>
   </widget>
   <widget class="QPushButton" name="Button_openRSThread">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>90</y>
-     <width>151</width>
+     <x>260</x>
+     <y>20</y>
+     <width>121</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>Open RS Thread</string>
+    <string>Open Realsense</string>
    </property>
   </widget>
   <widget class="QPushButton" name="Button_closeRSThread">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>130</y>
-     <width>151</width>
+     <x>260</x>
+     <y>50</y>
+     <width>121</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>Close RS Thread</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="LabelTime">
-   <property name="geometry">
-    <rect>
-     <x>660</x>
-     <y>30</y>
-     <width>81</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Time label</string>
+    <string>Close Realsense</string>
    </property>
   </widget>
   <widget class="QPushButton" name="Button_saveRGBD">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>90</y>
+     <x>280</x>
+     <y>110</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -231,8 +205,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_stopSaveRGBD">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>130</y>
+     <x>280</x>
+     <y>140</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -244,8 +218,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_ScanBLE">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>400</y>
+     <x>830</x>
+     <y>30</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -257,8 +231,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_ClearBLE">
    <property name="geometry">
     <rect>
-     <x>616</x>
-     <y>400</y>
+     <x>830</x>
+     <y>60</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -270,42 +244,181 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_QuitBLE">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>400</y>
+     <x>830</x>
+     <y>90</y>
      <width>89</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>Quit BLE</string>
+    <string>Disconnect</string>
    </property>
   </widget>
   <widget class="QListWidget" name="List_BLE">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>180</y>
-     <width>301</width>
-     <height>192</height>
+     <x>590</x>
+     <y>32</y>
+     <width>221</width>
+     <height>141</height>
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="Button_RescanBLE">
+  <widget class="QCustomPlot" name="customPlot_ACC" native="true">
    <property name="geometry">
     <rect>
-     <x>510</x>
+     <x>600</x>
+     <y>260</y>
+     <width>281</width>
+     <height>170</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>670</x>
+     <y>20</y>
+     <width>81</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Bluetooth</string>
+   </property>
+  </widget>
+  <widget class="QCustomPlot" name="customPlot_GYR" native="true">
+   <property name="geometry">
+    <rect>
+     <x>600</x>
+     <y>450</y>
+     <width>281</width>
+     <height>170</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>250</y>
+     <width>111</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Acc.</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
      <y>440</y>
+     <width>111</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Gyr.</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>630</y>
+     <width>111</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Mag.</string>
+   </property>
+  </widget>
+  <widget class="QCustomPlot" name="customPlot_MAG" native="true">
+   <property name="geometry">
+    <rect>
+     <x>600</x>
+     <y>640</y>
+     <width>281</width>
+     <height>170</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_startSaveBLE">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>120</y>
      <width>89</width>
      <height>25</height>
     </rect>
    </property>
    <property name="text">
-    <string>Re-scan</string>
+    <string>Start save</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_stopSaveBLE">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>150</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop save</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="Text_subject_name">
+   <property name="geometry">
+    <rect>
+     <x>660</x>
+     <y>180</y>
+     <width>90</width>
+     <height>28</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="Text_subject_action">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>214</y>
+     <width>151</width>
+     <height>28</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>608</x>
+     <y>184</y>
+     <width>67</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Name:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>608</x>
+     <y>220</y>
+     <width>81</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Movement:</string>
    </property>
   </widget>
   <zorder>RGBBox</zorder>
-  <zorder>OpenRSButton</zorder>
-  <zorder>RGBImg</zorder>
   <zorder>comboBox</zorder>
   <zorder>Label_rgb_resolution</zorder>
   <zorder>layoutWidget</zorder>
@@ -313,16 +426,36 @@ background-color: rgb(136, 138, 133);</string>
   <zorder>Label_depth_resolution</zorder>
   <zorder>Button_openRSThread</zorder>
   <zorder>Button_closeRSThread</zorder>
-  <zorder>LabelTime</zorder>
   <zorder>Button_saveRGBD</zorder>
   <zorder>Button_stopSaveRGBD</zorder>
   <zorder>Button_ScanBLE</zorder>
   <zorder>Button_ClearBLE</zorder>
   <zorder>Button_QuitBLE</zorder>
   <zorder>List_BLE</zorder>
-  <zorder>Button_RescanBLE</zorder>
+  <zorder>customPlot_ACC</zorder>
+  <zorder>label</zorder>
+  <zorder>customPlot_GYR</zorder>
+  <zorder>label_2</zorder>
+  <zorder>label_3</zorder>
+  <zorder>label_4</zorder>
+  <zorder>customPlot_MAG</zorder>
+  <zorder>horizontalSpacer</zorder>
+  <zorder>Button_startSaveBLE</zorder>
+  <zorder>Button_stopSaveBLE</zorder>
+  <zorder>Text_subject_name</zorder>
+  <zorder>Text_subject_action</zorder>
+  <zorder>label_5</zorder>
+  <zorder>label_6</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>../../qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
