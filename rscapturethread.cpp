@@ -3,11 +3,13 @@
 using namespace cv;
 using namespace rs2;
 
-extern const int queueCapacity = 3;
+/*
+extern const int queueCapacity = 1;
 extern rs2::frame_queue original_color_queue(queueCapacity);
 extern rs2::frame_queue original_depth_queue(queueCapacity);
 extern rs2::frame_queue filtered_color_queue(queueCapacity);
 extern rs2::frame_queue flitered_depth_queue(queueCapacity);
+*/
 
 rsCaptureThread::rsCaptureThread(QObject* parent)
     : QThread(parent)
@@ -49,15 +51,38 @@ void rsCaptureThread::run(){
     }
     align align(RS2_STREAM_COLOR);
 
+    // depth filter
+    spatial_filter spat_filter;    //
+    spat_filter.set_option(RS2_OPTION_FILTER_MAGNITUDE, 2);
+    spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.5);
+    spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20);
+    temporal_filter temp_filter;   //
+    temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.8f);
+    temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 50);
+    disparity_transform depth_to_disparity(true);
+    disparity_transform disparity_to_depth(false);
 
     while(!abort){
         frameset rs_d415 = pipe.wait_for_frames();
         frameset align_d415 = align.process(rs_d415);
         frame depth_frame = align_d415.get_depth_frame();
         frame color_frame = align_d415.get_color_frame();
+
+
+        depth_frame = depth_to_disparity.process(depth_frame);
+        depth_frame = spat_filter.process(depth_frame);
+        depth_frame = temp_filter.process(depth_frame);
+        depth_frame = disparity_to_depth.process(depth_frame);
+
+        Mat color_mat = rsColorFrame2Mat(color_frame);
+        Mat depth_mat = rsDepthFrame2Mat(depth_frame);
+
+        emit sendColorMat(color_mat);
+        emit sendDepthMat(depth_mat);
+
         //mutex.lock();
-        original_color_queue.enqueue(color_frame);
-        original_depth_queue.enqueue(depth_frame);
+        //original_color_queue.enqueue(color_frame);
+        //original_depth_queue.enqueue(depth_frame);
         //mutex.unlock();
     }
 }
@@ -69,8 +94,6 @@ void rsCaptureThread::startCollect()
 
 void rsCaptureThread::stop(){
     abort = true;
-    //pipeline pipe;
-    //pipe.start();
     pipe.stop();
 }
 
@@ -123,7 +146,7 @@ void rsFilteredThread::run(){
     spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.5);
     spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20);
     temporal_filter temp_filter;   //
-    temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.8);
+    temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.8f);
     temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 50);
     disparity_transform depth_to_disparity(true);
     disparity_transform disparity_to_depth(false);
@@ -131,6 +154,7 @@ void rsFilteredThread::run(){
 
     while(!abort){
 
+        /*
         //mutex.lock();
         auto depth_frame = original_depth_queue.wait_for_frame();
         auto color_frame = original_color_queue.wait_for_frame();
@@ -140,21 +164,18 @@ void rsFilteredThread::run(){
         depth_frame = spat_filter.process(depth_frame);
         depth_frame = temp_filter.process(depth_frame);
         depth_frame = disparity_to_depth.process(depth_frame);
-        mutex.lock();
-        filtered_color_queue.enqueue(color_frame);
-        flitered_depth_queue.enqueue(depth_frame);
-        mutex.unlock();
+        //mutex.lock();
+        //filtered_color_queue.enqueue(color_frame);
+        //flitered_depth_queue.enqueue(depth_frame);
+        //mutex.unlock();
 
         Mat color_mat = rsColorFrame2Mat(color_frame);
         Mat depth_mat = rsDepthFrame2Mat(depth_frame);
-        depth_mat.convertTo(depth_mat, CV_16UC1);
-        //auto depth_show = color_map(depth_frame);
-        //Mat depth_show_mat = rsColorFrame2Mat(depth_show);
+        //depth_mat.convertTo(depth_mat, CV_16UC1);
 
         emit sendColorFiltered(color_mat);
         emit sendDepthFiltered(depth_mat);
-        //emit sendDepthShow(depth_show_mat);
-
+        */
     }
 }
 

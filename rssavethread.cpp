@@ -26,18 +26,20 @@ void rssavethread::run(){
 
 void rssavethread::save_color_mat(cv::Mat color_mat){
     if (!abort){
+        Mat Buf_color_mat = color_mat.clone();
         char color_file_name[50];
         qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         sprintf(color_file_name, "/home/skaegy/Data/RS/rgb/%13ld.png", currTime);
-        imwrite(color_file_name, color_mat);
+        imwrite(color_file_name, Buf_color_mat);
     }
 }
 
 void rssavethread::save_depth_mat(cv::Mat depth_mat){
     if (!abort){
+        Mat Buf_depth_mat = depth_mat.clone();
         char depth_file_name[50];
         qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         sprintf(depth_file_name, "/home/skaegy/Data/RS/depth/%13ld.png", currTime);
-        imwrite(depth_file_name, depth_mat);
+        imwrite(depth_file_name, Buf_depth_mat);
     }
 }

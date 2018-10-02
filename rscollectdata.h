@@ -130,12 +130,12 @@ private:
     bool save_flag = false;
     int frame_cnt = 1; int fps = 0; // To calculate the fps of the rgb-d images
     int save_color_cnt = 1, save_depth_cnt = 1; // save frame counter
-    int LastTimeT = 0;
+    uint LastTimeT = 0;
     // ---- BLE ---- //
     int save_BLE_cnt = 0;
     bool save_BLE_flag = false;
     bool BLEData_flag = false;
-    int BLEReceiveData[10] = {0}; // Received data from BLE sensor
+    qint64 BLEReceiveData[10] = {0}; // Received data from BLE sensor
     QList<qint64> BLEReceiveDataSet; // Received data for save from BLE sensor
     // ---- BLE plot ----//
     int key_ACC = 1, key_GYR = 1, key_MAG = 1;  // xlabel of BLE graph

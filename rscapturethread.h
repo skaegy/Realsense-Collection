@@ -33,7 +33,6 @@ private:
     QMutex mutex;
     rs2::pipeline pipe;
     cv::Mat color_mat, depth_mat;
-    QImage qcolorshow, qdepthshow;
     cv::Mat rsDepthFrame2Mat(rs2::frame DepthFrame);
     cv::Mat rsColorFrame2Mat(rs2::frame ColorFrame);
 };

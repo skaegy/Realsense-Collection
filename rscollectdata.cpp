@@ -35,7 +35,7 @@ rsCollectData::rsCollectData(QWidget *parent) :
 rsCollectData::~rsCollectData()
 {
     rsCapture->stop();
-    rsFiltered->stop();
+    //rsFiltered->stop();
     rsSave->stop();
     delete discoveryAgent;
     delete controller;
@@ -53,21 +53,24 @@ void rsCollectData::on_Button_openRSThread_clicked()
     ui->Button_saveRGBD->setEnabled(true);
     rsCapture = new rsCaptureThread();
     rsCapture->startCollect();
-    rsFiltered = new rsFilteredThread();
-    rsFiltered->startFilter();
+    //rsFiltered = new rsFilteredThread();
+    //rsFiltered->startFilter();
 
     qRegisterMetaType< cv::Mat >("cv::Mat");
-    QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
-    QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
-    //QObject::connect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
-    //QObject::connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
+    //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
+    //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
+    QObject::connect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
+    QObject::connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
 }
 
 void rsCollectData::on_Button_closeRSThread_clicked()
 {
     rsCapture->stop();
-    rsFiltered->stop();
+    //rsFiltered->stop();
     rsSave->stop();
+
+    disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
+    disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
     //close();
 }
 
@@ -76,11 +79,12 @@ void rsCollectData::on_Button_saveRGBD_clicked()
     ui->Button_stopSaveRGBD->setEnabled(true);
     ui->Button_saveRGBD->setEnabled(false);
     rsSave = new rssavethread();
-    QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
-    QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
+    //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
+    //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
 
-    //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),this,SLOT(save_color_mat(cv::Mat)));
-    //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),this,SLOT(save_depth_mat(cv::Mat)));
+    QObject::connect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
+    QObject::connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
+
 }
 
 void rsCollectData::on_Button_stopSaveRGBD_clicked()
@@ -88,10 +92,10 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     ui->Button_stopSaveRGBD->setEnabled(false);
     ui->Button_saveRGBD->setEnabled(true);
     rsSave->stop();
-    QObject::disconnect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
-    QObject::disconnect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
-    //QObject::disconnect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),this,SLOT(save_color_mat(cv::Mat)));
-    //QObject::disconnect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),this,SLOT(save_depth_mat(cv::Mat)));
+    //QObject::disconnect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
+    //QObject::disconnect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
+    QObject::disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
+    QObject::disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
     save_color_cnt = 1;
     save_depth_cnt = 1;
 }
@@ -102,15 +106,14 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
 void rsCollectData::show_color_mat(Mat color_mat){
     cv::Mat QTmat = color_mat.clone();
     cvtColor(QTmat,QTmat,CV_BGR2RGB);
-    //cvtColor(color_mat, color_mat, COLOR_BGR2RGB);
-    QImage qcolor = QImage( (const unsigned char*)(QTmat.data), QTmat.cols, QTmat.rows, QImage::Format_RGB888);
+    QImage qcolor = QImage((QTmat.data), QTmat.cols, QTmat.rows, QImage::Format_RGB888);
     QImage qcolorshow = qcolor.scaled(QTmat.cols, QTmat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->RGBImg->setPixmap(QPixmap::fromImage(qcolorshow));
     ui->RGBImg->resize(qcolorshow.size());
 
     // Calculate FPS
     QDateTime currTime = QDateTime::currentDateTime();
-    int CurrTimeT = currTime.toTime_t();
+    uint CurrTimeT = currTime.toTime_t();
     if (CurrTimeT == LastTimeT){
         fps++;
     }
@@ -126,18 +129,16 @@ void rsCollectData::show_color_mat(Mat color_mat){
 }
 
 void rsCollectData::show_depth_mat(Mat depth_mat){
-    QImage qdepth = QImage( (const unsigned char*)(depth_mat.data), depth_mat.cols, depth_mat.rows, QImage::Format_RGB16 );
+    QImage qdepth = QImage( (depth_mat.data), depth_mat.cols, depth_mat.rows, QImage::Format_RGB16 );
     QImage qdepthshow = qdepth.scaled(depth_mat.cols, depth_mat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
 }
 
 void rsCollectData::save_color_mat(Mat color_mat){
-    //cvtColor(color_mat, color_mat, COLOR_BGR2RGB);
     char color_file_name[50];
     qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
     sprintf(color_file_name, "/home/skaegy/Data/RS/rgb/%13ld.png", currTime);
-    //QTextStream(stdout) << "Saving " << color_file_name << endl;
     imwrite(color_file_name, color_mat);
     save_color_cnt++;
 }
@@ -146,7 +147,6 @@ void rsCollectData::save_depth_mat(Mat depth_mat){
     char depth_file_name[50];
     qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
     sprintf(depth_file_name, "/home/skaegy/Data/RS/depth/%13ld.png", currTime);
-    //QTextStream(stdout) << "Saving " << depth_file_name << endl;
     imwrite(depth_file_name, depth_mat);
     save_depth_cnt++;
 }
@@ -172,11 +172,11 @@ void rsCollectData::on_Button_stopSaveBLE_clicked()
             .arg(currTime)
             .arg(ui->Text_subject_name->toPlainText())
             .arg(ui->Text_subject_action->toPlainText());
-    qDebug() << filename;
+
     QFile saveBLEfile(filename);
     if(saveBLEfile.open(QFile::WriteOnly |QFile::Truncate))
     {
-        qDebug() << "Start Writing Data...";
+        qDebug() << "Start writing data to ... " << filename;
         QTextStream stream(&saveBLEfile);
         stream << "Timestamp" << "\t" << "ACC_X" << "\t" << "ACC_Y" << "\t" << "ACC_Z" << "\t"
                      << "GYR_X" << "\t" << "GYR_Y" << "\t" << "GYR_Z" << "\t"
@@ -196,6 +196,7 @@ void rsCollectData::on_Button_stopSaveBLE_clicked()
         }
 
         saveBLEfile.close();
+        qDebug() << "BLE-eAR sensor data is saved";
     }
     BLEReceiveDataSet.clear();
 }
