@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QImageWriter>
 #include <QDir>
+#include <QList>
 #include <rs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -30,5 +31,9 @@ protected:
     void run();
 private:
     QMutex mutex;
+    QList<cv::Mat> mlColor;
+    QList<cv::Mat> mlDepth;
+    QList<std::string> mlColorName;
+    QList<std::string> mlDepthName;
 };
 #endif // RSSAVETHREAD_H

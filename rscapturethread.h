@@ -28,9 +28,6 @@ public:
     void stop();
     bool abort;
 
-public slots:
-    void collectingFlags();
-
 Q_SIGNALS:
     void sendColorMat(cv::Mat &color_mat);
     void sendDepthMat(cv::Mat &depth_mat);
@@ -53,7 +50,6 @@ private:
     cv::Mat color_mat, depth_mat;
     cv::Mat rsDepthFrame2Mat(rs2::frame DepthFrame);
     cv::Mat rsColorFrame2Mat(rs2::frame ColorFrame);
-    bool frame_processed_flag;
 };
 
 class rsFilteredThread : public QThread

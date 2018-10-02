@@ -18,6 +18,27 @@ void rssavethread::stop(){
     mutex.lock();
     abort = true;
     mutex.unlock();
+
+    // Save all the images in the list file
+    // --- Color images
+    QList<cv::Mat>::iterator itIm ;
+    QList<std::string>::iterator itName;
+    for(itIm = mlColor.begin(), itName = mlColorName.begin();
+        itIm!=mlColor.end() && itName != mlColorName.end();
+        itIm++, itName++){
+        std::string file_name = *itName;
+        cv::Mat Image = *itIm;
+        imwrite(file_name, Image);
+    }
+
+    for(itIm = mlDepth.begin(), itName = mlDepthName.begin();
+        itIm!=mlDepth.end() && itName != mlDepthName.end();
+        itIm++, itName++){
+        std::string file_name = *itName;
+        cv::Mat Image = *itIm;
+        imwrite(file_name, Image);
+    }
+
     wait();
 }
 void rssavethread::run(){
@@ -55,9 +76,12 @@ void rssavethread::save_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat){
         qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         sprintf(color_file_name, "/home/skaegy/Data/RS/rgb/%13ld.png", currTime);
         sprintf(depth_file_name, "/home/skaegy/Data/RS/depth/%13ld.png", currTime);
-        imwrite(depth_file_name, Buf_depth_mat);
-        imwrite(color_file_name, Buf_color_mat);
+        mlColor.push_back(Buf_color_mat);
+        mlDepth.push_back(Buf_depth_mat);
+        mlColorName.push_back(color_file_name);
+        mlDepthName.push_back(depth_file_name);
 
-        emit ImSaved();
+        //imwrite(depth_file_name, Buf_depth_mat);
+        //imwrite(color_file_name, Buf_color_mat);
     }
 }

@@ -28,69 +28,11 @@ rsCaptureThread::~rsCaptureThread()
 }
 
 void rsCaptureThread::run(){
-    /*
-    // Open RS
-    config rs_cfg;
-    rs_cfg.enable_stream(RS2_STREAM_DEPTH, IMG_WIDTH, IMG_HEIGHT, RS2_FORMAT_Z16, IN_FRAME); // Enable default depth
-    rs_cfg.enable_stream(RS2_STREAM_COLOR, IMG_WIDTH, IMG_HEIGHT, RS2_FORMAT_BGR8, IN_FRAME);
-    //rs_cfg.enable_stream(RS2_STREAM_INFRARED, 1);
-    //rs_cfg.enable_stream(RS2_STREAM_INFRARED, 2);
-    colorizer color_map;
-    pipeline_profile rs_device = pipe.start(rs_cfg);
-    device selected_device = rs_device.get_device();
-    auto depth_sensor = selected_device.first<rs2::depth_sensor>();
-    if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED)){
-        depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f);
-    }
-    if (depth_sensor.supports(RS2_OPTION_LASER_POWER)){
-        auto range = depth_sensor.get_option_range(RS2_OPTION_LASER_POWER);
-        depth_sensor.set_option(RS2_OPTION_LASER_POWER, range.max);
-    }
-    align align(RS2_STREAM_COLOR);
-
-    // depth filter
-    spatial_filter spat_filter;    //
-    spat_filter.set_option(RS2_OPTION_FILTER_MAGNITUDE, 2);
-    spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.5);
-    spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20);
-    temporal_filter temp_filter;   //
-    temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.8f);
-    temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 50);
-    disparity_transform depth_to_disparity(true);
-    disparity_transform disparity_to_depth(false);
-
-    while(!abort){
-        frameset rs_d415 = pipe.wait_for_frames();
-        frameset align_d415 = align.process(rs_d415);
-        frame depth_frame = align_d415.get_depth_frame();
-        frame color_frame = align_d415.get_color_frame();
-        qDebug() << "Here";
-
-        depth_frame = depth_to_disparity.process(depth_frame);
-        depth_frame = spat_filter.process(depth_frame);
-        depth_frame = temp_filter.process(depth_frame);
-        depth_frame = disparity_to_depth.process(depth_frame);
-
-        Mat color_mat = rsColorFrame2Mat(color_frame);
-        Mat depth_mat = rsDepthFrame2Mat(depth_frame);
-
-        emit sendColorMat(color_mat);
-        emit sendDepthMat(depth_mat);
-
-        //mutex.lock();
-        //original_color_queue.enqueue(color_frame);
-        //original_depth_queue.enqueue(depth_frame);
-        //mutex.unlock();
-    }
-*/
-
     rs2::align align(RS2_STREAM_COLOR);
     disparity_transform depth_to_disparity(true);
     disparity_transform disparity_to_depth(false);
-    frame_processed_flag = true;
 
     while(!abort){
-        frame_processed_flag = false;
         frameset rs_d415 = pipe.wait_for_frames();
         frameset align_d415 = align.process(rs_d415);
         frame depth_frame = align_d415.get_depth_frame();
@@ -109,8 +51,6 @@ void rsCaptureThread::run(){
 
 void rsCaptureThread::startCollect()
 {
-
-
     // Initialize the Realsense configuration
     // --- Camera parameters
     rs_cfg.enable_stream(RS2_STREAM_DEPTH, IMG_WIDTH, IMG_HEIGHT, RS2_FORMAT_Z16, IN_FRAME); // Enable default depth
@@ -136,10 +76,6 @@ void rsCaptureThread::startCollect()
     start();
 }
 
-void rsCaptureThread::collectingFlags(){
-    qDebug() << "Flag is collected";
-    frame_processed_flag = true;
-}
 
 void rsCaptureThread::stop(){
     abort = true;

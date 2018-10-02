@@ -134,7 +134,6 @@ private:
     // ---- RGBD ---- //
     bool save_flag = false;
     int frame_cnt = 1; int fps = 0; // To calculate the fps of the rgb-d images
-    int save_color_cnt = 1, save_depth_cnt = 1; // save frame counter
     uint LastTimeT = 0;
     // ---- BLE ---- //
     int save_BLE_cnt = 0;
