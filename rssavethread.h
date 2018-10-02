@@ -4,7 +4,6 @@
 #include <QThread>
 #include <QMutex>
 #include <QDateTime>
-#include <QTextStream>
 #include <QFileDialog>
 #include <QImageWriter>
 #include <QDir>
@@ -23,8 +22,10 @@ public:
 public slots:
     void save_color_mat(cv::Mat &color_mat);
     void save_depth_mat(cv::Mat &depth_mat);
-    void save_color_frame(rs2::frame& color_frame);
-    void save_depth_frame(rs2::frame& depth_frame);
+    void save_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat);
+Q_SIGNALS:
+    void ImSaved();
+
 protected:
     void run();
 private:

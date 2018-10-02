@@ -55,15 +55,20 @@ void rsCollectData::on_Button_openRSThread_clicked()
 {
     ui->Button_saveRGBD->setEnabled(true);
     rsCapture = new rsCaptureThread();
+    connect(this, SIGNAL(FrameShowed()), rsCapture,SLOT(collectingFlags()));
     rsCapture->startCollect();
+
     //rsFiltered = new rsFilteredThread();
     //rsFiltered->startFilter();
 
-    qRegisterMetaType< cv::Mat >("cv::Mat");
+    //qRegisterMetaType< cv::Mat >("cv::Mat");
     //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
     //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
-    connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat&)));
-    connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat&)));
+
+    //connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat&)));
+    //connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat&)));
+    connect(rsCapture, SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), this, SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&)));
+
 }
 
 void rsCollectData::on_Button_closeRSThread_clicked()
@@ -72,9 +77,9 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     //rsFiltered->stop();
     rsSave->stop();
 
-    disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat)));
-    disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat)));
-    //close();
+    //disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat)));
+    //disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat)));
+    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), this,SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&)));
 }
 
 void rsCollectData::on_Button_saveRGBD_clicked()
@@ -85,8 +90,11 @@ void rsCollectData::on_Button_saveRGBD_clicked()
     //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
     //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
 
-    connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
-    connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
+    //connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
+    //connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
+    connect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&)));
+    disconnect(this, SIGNAL(FrameShowed()), rsCapture,SLOT(collectingFlags()));
+    connect(rsSave, SIGNAL(ImSaved()), rsCapture,SLOT(collectingFlags()));
 }
 
 void rsCollectData::on_Button_stopSaveRGBD_clicked()
@@ -99,8 +107,12 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     //QObject::disconnect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
 
     // --- RS_CAPTURE THREAD
-    QObject::disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
-    QObject::disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
+    //QObject::disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
+    //QObject::disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
+
+    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&)));
+    disconnect(rsSave, SIGNAL(ImSaved()), rsCapture,SLOT(collectingFlags()));
+    connect(this, SIGNAL(FrameShowed()), rsCapture,SLOT(collectingFlags()));
 
     save_color_cnt = 1;
     save_depth_cnt = 1;
@@ -141,6 +153,22 @@ void rsCollectData::show_depth_mat(Mat &depth_mat){
     ui->DepthImg->resize(qdepthshow.size());
 }
 
+void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat){
+    cv::Mat QTmat = color_mat.clone();
+    cvtColor(QTmat,QTmat,CV_BGR2RGB);
+    QImage qcolor = QImage((QTmat.data), QTmat.cols, QTmat.rows, QImage::Format_RGB888);
+    QImage qcolorshow = qcolor.scaled(QTmat.cols, QTmat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    ui->RGBImg->setPixmap(QPixmap::fromImage(qcolorshow));
+    ui->RGBImg->resize(qcolorshow.size());
+
+    cv::Mat QDepth = depth_mat.clone();
+    QImage qdepth = QImage( (QDepth.data), QDepth.cols, QDepth.rows, QImage::Format_RGB16 );
+    QImage qdepthshow = qdepth.scaled(QDepth.cols, QDepth.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
+    ui->DepthImg->resize(qdepthshow.size());
+
+    emit FrameShowed();
+}
 //=============================
 // Show and Save BLE slots
 //=============================
