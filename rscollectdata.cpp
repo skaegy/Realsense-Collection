@@ -12,6 +12,9 @@ rsCollectData::rsCollectData(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    qRegisterMetaType< cv::Mat >("cv::Mat");
+    qRegisterMetaType< cv::Mat >("cv::Mat&");
+
     ui->Text_subject_name->setText("Hamlyn");
     ui->Text_subject_action->setText("NormalWalk");
     ui->Button_saveRGBD->setEnabled(false);
@@ -59,8 +62,8 @@ void rsCollectData::on_Button_openRSThread_clicked()
     qRegisterMetaType< cv::Mat >("cv::Mat");
     //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
     //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
-    QObject::connect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
-    QObject::connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
+    connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat&)));
+    connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat&)));
 }
 
 void rsCollectData::on_Button_closeRSThread_clicked()
@@ -69,8 +72,8 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     //rsFiltered->stop();
     rsSave->stop();
 
-    disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
-    disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
+    disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat)));
+    disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat)));
     //close();
 }
 
@@ -82,9 +85,8 @@ void rsCollectData::on_Button_saveRGBD_clicked()
     //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
     //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
 
-    QObject::connect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
-    QObject::connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
-
+    connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
+    connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
 }
 
 void rsCollectData::on_Button_stopSaveRGBD_clicked()
@@ -92,18 +94,22 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     ui->Button_stopSaveRGBD->setEnabled(false);
     ui->Button_saveRGBD->setEnabled(true);
     rsSave->stop();
+    // --- RS_FILTERED THREAD
     //QObject::disconnect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
     //QObject::disconnect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
-    QObject::disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
-    QObject::disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
+
+    // --- RS_CAPTURE THREAD
+    QObject::disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
+    QObject::disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
+
     save_color_cnt = 1;
     save_depth_cnt = 1;
 }
 
 //=============================
-// Show and Save image slots
+// Show image slots
 //=============================
-void rsCollectData::show_color_mat(Mat color_mat){
+void rsCollectData::show_color_mat(Mat &color_mat){
     cv::Mat QTmat = color_mat.clone();
     cvtColor(QTmat,QTmat,CV_BGR2RGB);
     QImage qcolor = QImage((QTmat.data), QTmat.cols, QTmat.rows, QImage::Format_RGB888);
@@ -128,27 +134,11 @@ void rsCollectData::show_color_mat(Mat color_mat){
     frame_cnt++;
 }
 
-void rsCollectData::show_depth_mat(Mat depth_mat){
+void rsCollectData::show_depth_mat(Mat &depth_mat){
     QImage qdepth = QImage( (depth_mat.data), depth_mat.cols, depth_mat.rows, QImage::Format_RGB16 );
     QImage qdepthshow = qdepth.scaled(depth_mat.cols, depth_mat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
-}
-
-void rsCollectData::save_color_mat(Mat color_mat){
-    char color_file_name[50];
-    qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    sprintf(color_file_name, "/home/skaegy/Data/RS/rgb/%13ld.png", currTime);
-    imwrite(color_file_name, color_mat);
-    save_color_cnt++;
-}
-
-void rsCollectData::save_depth_mat(Mat depth_mat){
-    char depth_file_name[50];
-    qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    sprintf(depth_file_name, "/home/skaegy/Data/RS/depth/%13ld.png", currTime);
-    imwrite(depth_file_name, depth_mat);
-    save_depth_cnt++;
 }
 
 //=============================

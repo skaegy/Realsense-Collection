@@ -63,10 +63,8 @@ private slots:
     void on_Button_stopSaveBLE_clicked();
 
     // RGB-D
-    void show_color_mat(cv::Mat color_mat);
-    void show_depth_mat(cv::Mat depth_mat);
-    void save_color_mat(cv::Mat color_mat);
-    void save_depth_mat(cv::Mat depth_mat);
+    void show_color_mat(cv::Mat &color_mat);
+    void show_depth_mat(cv::Mat &depth_mat);
 
     // BLE plot
     void init_BLE_graph();

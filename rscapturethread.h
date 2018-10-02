@@ -25,8 +25,8 @@ public:
     void stop();
     bool abort;
 signals:
-    void sendColorMat(cv::Mat color_mat);
-    void sendDepthMat(cv::Mat depth_mat);
+    void sendColorMat(cv::Mat &color_mat);
+    void sendDepthMat(cv::Mat &depth_mat);
 protected:
     void run();
 private:
