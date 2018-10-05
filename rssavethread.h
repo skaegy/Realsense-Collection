@@ -8,6 +8,8 @@
 #include <QImageWriter>
 #include <QDir>
 #include <QList>
+#include <QDebug>
+#include <QFileInfo>
 #include <rs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -20,20 +22,21 @@ public:
     ~rssavethread();
     void stop();
     bool abort;
+
 public slots:
-    void save_color_mat(cv::Mat &color_mat);
-    void save_depth_mat(cv::Mat &depth_mat);
     void save_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat);
-Q_SIGNALS:
-    void ImSaved();
+    void receive_RGBD_name(QString Subject, QString Action);
 
 protected:
     void run();
 private:
     QMutex mutex;
-    QList<cv::Mat> mlColor;
-    QList<cv::Mat> mlDepth;
-    QList<std::string> mlColorName;
-    QList<std::string> mlDepthName;
+    QList<cv::Mat> mlColor; // List for color images
+    QList<cv::Mat> mlDepth; // List for depth images
+    QList<QString> mlColorPathName; // List for color image path
+    QList<QString> mlDepthPathName; // List for depth image path
+    QList<std::string> mlImageName; // List for images name (color == depth)
+    QString Subject_name;
+    QString Action_name;
 };
 #endif // RSSAVETHREAD_H

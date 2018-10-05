@@ -53,11 +53,6 @@ public:
     const QString ear_uuid = "47442014-0f63-5b27-9122-728099603712";
     const QString IMU_uuid = "47442020-0f63-5b27-9122-728099603712";
 
-public slots:
-
-Q_SIGNALS:
-    void FrameShowed(); // For processing the Realsense data
-
 private slots:
     // UI
     void on_Button_openRSThread_clicked();
@@ -105,7 +100,7 @@ Q_SIGNALS:
     void disconnected();
     void randomAddressChanged();
     void DataReceived(); // For plot BLE received data
-
+    void send_RGBD_name(QString Subject, QString Action);
 
 private:
     // UI

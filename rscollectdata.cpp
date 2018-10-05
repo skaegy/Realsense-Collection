@@ -33,7 +33,6 @@ rsCollectData::rsCollectData(QWidget *parent) :
 
 
     init_BLE_graph();
-
 }
 
 rsCollectData::~rsCollectData()
@@ -91,12 +90,16 @@ void rsCollectData::on_Button_saveRGBD_clicked()
     ui->Button_saveRGBD->setEnabled(false);
     rsSave = new rssavethread();
     save_flag = true;
-    //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
-    //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
 
-    //connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
-    //connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
+    // Emit subject & action names for saving
+    connect(this,SIGNAL(send_RGBD_name(QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString)));
+    QString Subject = ui->Text_subject_name->toPlainText();
+    QString Action = ui->Text_subject_action->toPlainText();
+    emit send_RGBD_name(Subject, Action);
+    qDebug() << "Subject:::" << Subject;
+    qDebug() << "Action:::" << Action;
 
+    // Emit rgb-d images for saving
     connect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&)));
 }
 
@@ -106,14 +109,7 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     ui->Button_saveRGBD->setEnabled(true);
     rsSave->stop();
     save_flag = false;
-    // --- RS_FILTERED THREAD
-    //QObject::disconnect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),rsSave,SLOT(save_color_mat(cv::Mat)));
-    //QObject::disconnect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),rsSave,SLOT(save_depth_mat(cv::Mat)));
-
     // --- RS_CAPTURE THREAD
-    //QObject::disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),rsSave,SLOT(save_color_mat(cv::Mat&)));
-    //QObject::disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),rsSave,SLOT(save_depth_mat(cv::Mat&)));
-
     disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&)));
 }
 
@@ -166,9 +162,9 @@ void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat){
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
 
-    cv::waitKey(10);
-    emit FrameShowed();
+    cv::waitKey(2);
 }
+
 //=============================
 // Show and Save BLE slots
 //=============================
@@ -315,7 +311,6 @@ void rsCollectData::show_BLE_graph(){
         ui->customPlot_MAG->replot();
     }
 }
-
 
 //=============================
 // BLE process slot

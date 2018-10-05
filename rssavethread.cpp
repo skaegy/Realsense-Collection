@@ -9,23 +9,44 @@ rssavethread::rssavethread(QObject* parent)
     std::thread processing_thread([&]() {
        while (!abort) //While application is running
        {
-           if (mlColor.size()>0 && mlColorName.size()>0 && mlDepth.size()>0 && mlDepthName.size()>0){
+           if (mlColor.size()>0 && mlDepth.size()>0 && mlImageName.size()>0 && mlColorPathName.size()>0 && mlDepthPathName.size()>0){
                QList<cv::Mat>::iterator itIm = mlColor.begin();
-               QList<std::string>::iterator itName = mlColorName.begin();
-               imwrite(*itName, *itIm);
-               mlColor.pop_front();
-               mlColorName.pop_front();
+               QList<std::string>::iterator itName = mlImageName.begin();
+               QList<QString>::iterator itColorPath =mlColorPathName.begin();
+               QList<QString>::iterator itDepthPath =mlDepthPathName.begin();
+               QString color_path = *itColorPath;
+               QString depth_path = *itDepthPath;
 
+               QFileInfo check_color(color_path);
+               QFileInfo check_depth(depth_path);
+               if (!check_color.exists())
+               {
+                   qDebug() << "Mkdir color::" << color_path;
+                   QDir color_dir = QDir::root();
+                   color_dir.mkpath(color_path);
+               }
+               if (!check_depth.exists())
+               {
+                   qDebug() << "Mkdir depth::";
+                   QDir depth_dir = QDir::root();
+                   depth_dir.mkpath(depth_path);
+               }
+
+               imwrite(color_path.toStdString() + *itName,  *itIm);
                itIm = mlDepth.begin();
-               itName = mlDepthName.begin();
-               imwrite(*itName, *itIm);
+               imwrite(depth_path.toStdString() + *itName, *itIm);
+
+               mlColor.pop_front();
                mlDepth.pop_front();
-               mlDepthName.pop_front();
+               mlImageName.pop_front();
+               mlColorPathName.pop_front();
+               mlDepthPathName.pop_front();
            }
        }
     });
     processing_thread.detach();
 }
+
 rssavethread::~rssavethread()
 {
     mutex.lock();
@@ -33,55 +54,34 @@ rssavethread::~rssavethread()
     mutex.unlock();
     wait();
 }
+
 void rssavethread::stop(){
     mutex.lock();
     abort = true;
     mutex.unlock();
     wait();
 }
-void rssavethread::run(){
-    // To be added
-}
 
-void rssavethread::save_color_mat(cv::Mat &color_mat){
-    if (!abort){
-        Mat Buf_color_mat = color_mat.clone();
-        char color_file_name[50];
-        qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        sprintf(color_file_name, "/home/skaegy/Data/RS/rgb/%13ld.png", currTime);
-        imwrite(color_file_name, Buf_color_mat);
-
-    }
-}
-
-void rssavethread::save_depth_mat(cv::Mat &depth_mat){
-    if (!abort){
-        Mat Buf_depth_mat = depth_mat.clone();
-        char depth_file_name[50];
-        qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        sprintf(depth_file_name, "/home/skaegy/Data/RS/depth/%13ld.png", currTime);
-        imwrite(depth_file_name, Buf_depth_mat);
-
-    }
-}
+void rssavethread::run(){    // To be added}
 
 void rssavethread::save_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat){
     if (!abort){
         Mat Buf_color_mat = color_mat.clone();
         Mat Buf_depth_mat = depth_mat.clone();
-        char color_file_name[50];
-        char depth_file_name[50];
+        char image_name[20];
         qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        sprintf(color_file_name, "/home/skaegy/Data/RS/rgb/%13ld.png", currTime);
-        sprintf(depth_file_name, "/home/skaegy/Data/RS/depth/%13ld.png", currTime);
+        QString qColor_Path_name = QString("/home/skaegy/Data/RGBD/%1/%2/rgb/").arg(Subject_name).arg(Action_name);
+        QString qDepth_Path_name = QString("/home/skaegy/Data/RGBD/%1/%2/depth/").arg(Subject_name).arg(Action_name);
+        sprintf(image_name, "%13ld.png", currTime);
         mlColor.push_back(Buf_color_mat);
         mlDepth.push_back(Buf_depth_mat);
-        mlColorName.push_back(color_file_name);
-        mlDepthName.push_back(depth_file_name);
-
-
-
-        //imwrite(depth_file_name, Buf_depth_mat);
-        //imwrite(color_file_name, Buf_color_mat);
+        mlColorPathName.push_back(qColor_Path_name);
+        mlDepthPathName.push_back(qDepth_Path_name);
+        mlImageName.push_back(image_name);
     }
+}
+
+void rssavethread::receive_RGBD_name(QString Subject, QString Action){
+    Subject_name = Subject;
+    Action_name = Action;
 }
