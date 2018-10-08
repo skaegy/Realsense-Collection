@@ -197,8 +197,6 @@ void rsCollectData::on_Button_stopSaveBLE_clicked()
                      << "MAG_X" << "\t" << "MAG_Y" << "\t" << "MAG_Z" << "\n";
         for (QList<qint64>::iterator it = BLEReceiveDataSet.begin(); it!=BLEReceiveDataSet.end(); it++){
             save_BLE_cnt++;
-            if (save_BLE_cnt == 1)
-                qDebug() <<  *it;
 
             if (save_BLE_cnt != 10){
                 stream << *it << "\t";

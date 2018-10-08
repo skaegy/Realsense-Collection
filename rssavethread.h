@@ -33,10 +33,8 @@ private:
     QMutex mutex;
     QList<cv::Mat> mlColor; // List for color images
     QList<cv::Mat> mlDepth; // List for depth images
-    QList<QString> mlColorPathName; // List for color image path
-    QList<QString> mlDepthPathName; // List for depth image path
     QList<std::string> mlImageName; // List for images name (color == depth)
-    QString Subject_name;
-    QString Action_name;
+    QString qColor_path;
+    QString qDepth_path;
 };
 #endif // RSSAVETHREAD_H
