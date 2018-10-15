@@ -24,7 +24,7 @@ public:
     bool abort;
 
 public slots:
-    void save_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat);
+    void save_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
     void receive_RGBD_name(QString Subject, QString Action);
 
 protected:

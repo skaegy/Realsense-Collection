@@ -35,8 +35,9 @@ void rsCaptureThread::run(){
     while(!abort){
         frameset rs_d415 = pipe.wait_for_frames();
         frameset align_d415 = align.process(rs_d415);
-        frame depth_frame = align_d415.get_depth_frame();
+        frame depth_frame = align_d415.get_depth_frame(); 
         frame color_frame = align_d415.get_color_frame();
+        qint64 rsTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         depth_frame = depth_to_disparity.process(depth_frame);
         depth_frame = spat_filter.process(depth_frame);
         depth_frame = temp_filter.process(depth_frame);
@@ -45,7 +46,7 @@ void rsCaptureThread::run(){
         Mat color_mat = rsColorFrame2Mat(color_frame);
         Mat depth_mat = rsDepthFrame2Mat(depth_frame);
 
-        emit sendRGBDMat(color_mat, depth_mat);
+        emit sendRGBDMat(color_mat, depth_mat, rsTime);
     }
 }
 

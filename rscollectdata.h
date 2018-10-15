@@ -36,10 +36,16 @@
 #include "deviceinfo.h"
 #include "serviceinfo.h"
 #include "characteristicinfo.h"
-
+#include "udpthread.h"
 
 namespace Ui {
 class rsCollectData;
+class rsCaptureThread;
+class rssavethread;
+class udpthread;
+class CharacteristicInfo;
+class DeviceInfo;
+class ServiceInfo;
 }
 
 class rsCollectData : public QWidget
@@ -61,11 +67,13 @@ private slots:
     void on_Button_stopSaveRGBD_clicked();
     void on_Button_startSaveBLE_clicked();
     void on_Button_stopSaveBLE_clicked();
+    void on_Button_UDP_clicked();
+    void on_Button_StopUDP_clicked();
 
     // RGB-D
     void show_color_mat(cv::Mat &color_mat);
     void show_depth_mat(cv::Mat &depth_mat);
-    void show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat);
+    void show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
 
     // BLE plot
     void init_BLE_graph();
@@ -90,6 +98,12 @@ private slots:
     void deviceDisconnected();
     // QLowEnergyService related
     void serviceDetailsDiscovered(QLowEnergyService::ServiceState newState);
+
+
+
+    void on_Text_subject_name_textChanged();
+
+    void on_Text_subject_action_textChanged();
 
 Q_SIGNALS:
     void devicesUpdated();
@@ -124,6 +138,7 @@ private:
     rsCaptureThread* rsCapture;
     rsFilteredThread* rsFiltered;
     rssavethread* rsSave;
+    udpthread* udpSync;
 
     // parameters
     // ---- RGBD ---- //

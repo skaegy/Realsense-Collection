@@ -7,6 +7,8 @@
 #include <QImage>
 #include <QMetaType>
 #include <QDebug>
+#include <QDateTime>
+
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
@@ -31,7 +33,7 @@ public:
 Q_SIGNALS:
     void sendColorMat(cv::Mat &color_mat);
     void sendDepthMat(cv::Mat &depth_mat);
-    void sendRGBDMat(cv::Mat &color_mat, cv::Mat &depth_mat);
+    void sendRGBDMat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
 
 protected:
     void run();

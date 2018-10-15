@@ -453,6 +453,32 @@ background-color: rgb(136, 138, 133);</string>
     <string>eAR-sensor</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="Button_UDP">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>170</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>UDP LISTEN</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_StopUDP">
+   <property name="geometry">
+    <rect>
+     <x>710</x>
+     <y>170</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Stop UDP</string>
+   </property>
+  </widget>
   <zorder>groupBox</zorder>
   <zorder>groupBox_3</zorder>
   <zorder>groupBox_2</zorder>
@@ -482,6 +508,8 @@ background-color: rgb(136, 138, 133);</string>
   <zorder>Text_subject_action</zorder>
   <zorder>label_5</zorder>
   <zorder>label_6</zorder>
+  <zorder>Button_UDP</zorder>
+  <zorder>Button_StopUDP</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

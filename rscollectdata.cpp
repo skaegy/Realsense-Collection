@@ -21,6 +21,7 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->Button_stopSaveRGBD->setEnabled(false);
     ui->Button_startSaveBLE->setEnabled(true);
     ui->Button_stopSaveBLE->setEnabled(false);
+    ui->Button_StopUDP->setEnabled(false);
 
     connect(ui->Button_ScanBLE, SIGNAL(clicked()), this, SLOT(startDeviceDiscovery()));
     connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
@@ -31,7 +32,6 @@ rsCollectData::rsCollectData(QWidget *parent) :
     connect(ui->Button_QuitBLE,SIGNAL(clicked()), this, SLOT(disconnectFromDevice()));
     connect(this,SIGNAL(DataReceived()),this,SLOT(show_BLE_graph()));
 
-
     init_BLE_graph();
 }
 
@@ -40,6 +40,7 @@ rsCollectData::~rsCollectData()
     rsCapture->stop();
     //rsFiltered->stop();
     rsSave->stop();
+    udpSync->stop();
     delete discoveryAgent;
     delete controller;
     qDeleteAll(devices);
@@ -66,7 +67,7 @@ void rsCollectData::on_Button_openRSThread_clicked()
 
     //connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat&)));
     //connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat&)));
-    connect(rsCapture, SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), this, SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&)));
+    connect(rsCapture, SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this, SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
 void rsCollectData::on_Button_closeRSThread_clicked()
@@ -81,7 +82,7 @@ void rsCollectData::on_Button_closeRSThread_clicked()
 
     //disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat)));
     //disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat)));
-    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), this,SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&)));
+    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this,SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
 void rsCollectData::on_Button_saveRGBD_clicked()
@@ -96,11 +97,9 @@ void rsCollectData::on_Button_saveRGBD_clicked()
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
     emit send_RGBD_name(Subject, Action);
-    qDebug() << "Subject:::" << Subject;
-    qDebug() << "Action:::" << Action;
 
     // Emit rgb-d images for saving
-    connect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&)));
+    connect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
 void rsCollectData::on_Button_stopSaveRGBD_clicked()
@@ -110,7 +109,7 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     rsSave->stop();
     save_flag = false;
     // --- RS_CAPTURE THREAD
-    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&)));
+    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
 //=============================
@@ -148,7 +147,7 @@ void rsCollectData::show_depth_mat(Mat &depth_mat){
     ui->DepthImg->resize(qdepthshow.size());
 }
 
-void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat){
+void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp){
     cv::Mat QTmat = color_mat.clone();
     cvtColor(QTmat,QTmat,CV_BGR2RGB);
     QImage qcolor = QImage((QTmat.data), QTmat.cols, QTmat.rows, QImage::Format_RGB888);
@@ -162,8 +161,32 @@ void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat){
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
 
-    cv::waitKey(2);
+    cv::waitKey(1);
 }
+
+//=======================================
+// UDP Listener
+//=======================================
+void rsCollectData::on_Button_UDP_clicked()
+{
+    ui->Button_UDP->setEnabled(false);
+    ui->Button_StopUDP->setEnabled(true);
+    udpSync = new udpthread();
+    udpSync->startSync();
+
+    connect(this,SIGNAL(send_RGBD_name(QString, QString)), udpSync, SLOT(receive_Subject_Action(QString,QString)));
+    QString Subject = ui->Text_subject_name->toPlainText();
+    QString Action = ui->Text_subject_action->toPlainText();
+    emit send_RGBD_name(Subject, Action);
+}
+
+void rsCollectData::on_Button_StopUDP_clicked()
+{
+    ui->Button_UDP->setEnabled(true);
+    ui->Button_StopUDP->setEnabled(false);
+    udpSync->stop();
+}
+
 
 //=============================
 // Show and Save BLE slots
@@ -610,3 +633,17 @@ void rsCollectData::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
     emit stateChanged();
 }
 
+
+void rsCollectData::on_Text_subject_name_textChanged()
+{
+    QString Subject = ui->Text_subject_name->toPlainText();
+    QString Action = ui->Text_subject_action->toPlainText();
+    emit send_RGBD_name(Subject, Action);
+}
+
+void rsCollectData::on_Text_subject_action_textChanged()
+{
+    QString Subject = ui->Text_subject_name->toPlainText();
+    QString Action = ui->Text_subject_action->toPlainText();
+    emit send_RGBD_name(Subject, Action);
+}
