@@ -57,6 +57,7 @@ void udpthread::run(){
         socklen_t src_len = sizeof(src);
         memset(&src, 0, sizeof(src));
         int sz = recvfrom(sockfd, buffer, buf_size, 0, (sockaddr*)&src, &src_len);
+        usleep(1000);
         if (sz > 0){
             // Timestamp of the received signal
             qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
