@@ -492,6 +492,8 @@ void rsCollectData::serviceStateChanged(QLowEnergyService::ServiceState s)
 void rsCollectData::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteArray &value)
 {
     if (ch.uuid() == QBluetoothUuid(IMU_uuid)) {
+        qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+
         QByteArray ax = value.mid(2,2);
         QByteArray ay = value.mid(4,2);
         QByteArray az = value.mid(6,2);
@@ -523,7 +525,6 @@ void rsCollectData::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QBy
         int MAG_Z =  QString(mz.toHex()).toInt(&bStatus,16);
         if (MAG_Z > 32768) MAG_Z = std::abs(MAG_Z - 65536);
 
-        qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
         BLEReceiveData[0]=currTime;
         BLEReceiveData[1]=ACC_X;
         BLEReceiveData[2]=ACC_Y;
