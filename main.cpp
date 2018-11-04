@@ -1,4 +1,4 @@
-#include "rscollectdata.h"
+#include "collectdata.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

@@ -1,4 +1,4 @@
-#include "rscollectdata.h"
+#include "collectdata.h"
 #include "ui_rscollectdata.h"
 
 using namespace cv;
@@ -6,31 +6,33 @@ using namespace rs2;
 
 rsCollectData::rsCollectData(QWidget *parent) :
     QWidget(parent),
-    localDevice(new QBluetoothLocalDevice),
+    ui(new Ui::rsCollectData),
     discoveryAgent(new QBluetoothDeviceDiscoveryAgent),
-    ui(new Ui::rsCollectData)
+    localDevice(new QBluetoothLocalDevice)
 {
     ui->setupUi(this);
 
     qRegisterMetaType< cv::Mat >("cv::Mat");
     qRegisterMetaType< cv::Mat >("cv::Mat&");
+    qRegisterMetaType< rs2::frame >("rs2::frame");
 
     ui->Text_subject_name->setText("Hamlyn");
     ui->Text_subject_action->setText("NormalWalk");
+    ui->Text_subject_index->setText("1");
     ui->Button_saveRGBD->setEnabled(false);
     ui->Button_stopSaveRGBD->setEnabled(false);
     ui->Button_startSaveBLE->setEnabled(true);
     ui->Button_stopSaveBLE->setEnabled(false);
     ui->Button_StopUDP->setEnabled(false);
 
-    connect(ui->Button_ScanBLE, SIGNAL(clicked()), this, SLOT(startDeviceDiscovery()));
-    connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
-            this, SLOT(addDevice(QBluetoothDeviceInfo)));
-    connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(itemActivated(QListWidgetItem*)));
-    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &rsCollectData::deviceScanFinished);
-    connect(ui->Button_QuitBLE,SIGNAL(clicked()), this, SLOT(disconnectFromDevice()));
-    connect(this,SIGNAL(DataReceived()),this,SLOT(show_BLE_graph()));
+    //connect(ui->Button_ScanBLE, SIGNAL(clicked()), this, SLOT(startDeviceDiscovery()));
+    //connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
+            //this, SLOT(addDevice(QBluetoothDeviceInfo)));
+    //connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),
+            //this, SLOT(itemActivated(QListWidgetItem*)));
+    //connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &rsCollectData::deviceScanFinished);
+    //connect(ui->Button_QuitBLE,SIGNAL(clicked()), this, SLOT(disconnectFromDevice()));
+    //connect(this,SIGNAL(DataReceived()),this,SLOT(show_BLE_graph()));
 
     init_BLE_graph();
 }
@@ -38,7 +40,7 @@ rsCollectData::rsCollectData(QWidget *parent) :
 rsCollectData::~rsCollectData()
 {
     rsCapture->stop();
-    //rsFiltered->stop();
+    rsFilter->stop();
     rsSave->stop();
     udpSync->stop();
     delete discoveryAgent;
@@ -59,15 +61,14 @@ void rsCollectData::on_Button_openRSThread_clicked()
     ui->Button_openRSThread->setEnabled(false);
     rsCapture = new rsCaptureThread();
     rsCapture->startCollect();
-    //rsFiltered = new rsFilteredThread();
-    //rsFiltered->startFilter();
+    rsFilter = new rsFilterThread();
+    rsFilter->startFilter();
 
-    //QObject::connect(rsFiltered,SIGNAL(sendColorFiltered(cv::Mat)),this,SLOT(show_color_mat(cv::Mat)));
-    //QObject::connect(rsFiltered,SIGNAL(sendDepthFiltered(cv::Mat)),this,SLOT(show_depth_mat(cv::Mat)));
-
-    //connect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat&)));
-    //connect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat&)));
-    connect(rsCapture, SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this, SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
+    connect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
+    connect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
+    //connect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), this, SLOT(show_color_mat(cv::Mat&,qint64)));
+    //connect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), this, SLOT(show_depth_mat(cv::Mat&,qint64)));
+    //connect(rsCapture, SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this, SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
 void rsCollectData::on_Button_closeRSThread_clicked()
@@ -75,16 +76,21 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     ui->Button_closeRSThread->setEnabled(false);
     ui->Button_openRSThread->setEnabled(true);
     rsCapture->stop();
-    //rsFiltered->stop();
+    rsFilter->stop();
     if (save_flag){
         rsSave->stop();
     }
 
-    //disconnect(rsCapture,SIGNAL(sendColorMat(cv::Mat&)),this,SLOT(show_color_mat(cv::Mat)));
-    //disconnect(rsCapture,SIGNAL(sendDepthMat(cv::Mat&)),this,SLOT(show_depth_mat(cv::Mat)));
-    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this,SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
+    disconnect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
+    disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
+    //disconnect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), this, SLOT(show_color_mat(cv::Mat&,qint64)));
+    //disconnect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), this, SLOT(show_depth_mat(cv::Mat&,qint64)));
+    //disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this,SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
+//=============================
+// Save image button
+//=============================
 void rsCollectData::on_Button_saveRGBD_clicked()
 {
     ui->Button_stopSaveRGBD->setEnabled(true);
@@ -93,13 +99,19 @@ void rsCollectData::on_Button_saveRGBD_clicked()
     save_flag = true;
 
     // Emit subject & action names for saving
-    connect(this,SIGNAL(send_RGBD_name(QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString)));
+    connect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
-    emit send_RGBD_name(Subject, Action);
+    QString Index = ui->Text_subject_index->toPlainText();
+    emit send_RGBD_name(Subject, Action, Index);
 
-    // Emit rgb-d images for saving
-    connect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
+    // ---- Emit rgb-d images for saving ---- //
+    // RS_FILTER & RSSAVE
+    connect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), rsSave, SLOT(save_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
+    //connect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_color_mat(cv::Mat&,qint64)));
+    //connect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_depth_mat(cv::Mat&,qint64)));
+    // RS_CAPTURE THREAD & RS_SAVE THREAD
+    //connect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
 void rsCollectData::on_Button_stopSaveRGBD_clicked()
@@ -108,43 +120,66 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     ui->Button_saveRGBD->setEnabled(true);
     rsSave->stop();
     save_flag = false;
-    // --- RS_CAPTURE THREAD
-    disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
+
+    // ---- Emit rgb-d images for saving ---- //
+    disconnect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
+    // RS_FILTER & RSSAVE
+    disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), rsSave, SLOT(save_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
+    //disconnect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_color_mat(cv::Mat&,qint64)));
+    //disconnect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_depth_mat(cv::Mat&,qint64)));
+    // RS_CAPTURE THREAD & RS_SAVE THREAD
+    //disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
 //=============================
 // Show image slots
 //=============================
-void rsCollectData::show_color_mat(Mat &color_mat){
+void rsCollectData::show_color_mat(Mat &color_mat, qint64 timestamp){
     cv::Mat QTmat = color_mat.clone();
     cvtColor(QTmat,QTmat,CV_BGR2RGB);
-    QImage qcolor = QImage((QTmat.data), QTmat.cols, QTmat.rows, QImage::Format_RGB888);
-    QImage qcolorshow = qcolor.scaled(QTmat.cols, QTmat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QImage qcolor = QImage((QTmat.data), IMG_WIDTH, IMG_HEIGHT, QImage::Format_RGB888);
+    QImage qcolorshow = qcolor.scaled(IMG_WIDTH, IMG_HEIGHT).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->RGBImg->setPixmap(QPixmap::fromImage(qcolorshow));
     ui->RGBImg->resize(qcolorshow.size());
 
     // Calculate FPS
-    QDateTime currTime = QDateTime::currentDateTime();
-    uint CurrTimeT = currTime.toTime_t();
-    if (CurrTimeT == LastTimeT){
-        fps++;
-    }
-    else{
-        if (fps>30){
-            fps = 30;
+    qint64 Interval = timestamp - mLastColorTimeT;
+    mLastColorTimeT = timestamp;
+    if ( Interval > 0 && Interval < 1000){
+        mSumColorTime = mSumColorTime + static_cast<uint>(Interval);
+        if (mSumColorTime > 1000){
+            mColor_frame_cnt = mColor_frame_cnt > 30 ? 30 : mColor_frame_cnt;
+            ui->lable_color_fps->setText(QString::number(mColor_frame_cnt));
+            mColor_frame_cnt = 1;
+            mSumColorTime = mSumColorTime - 1000;
         }
-        QTextStream(stdout) << fps << endl;
-        fps=1;
+        else{
+            mColor_frame_cnt++;
+        }
     }
-    LastTimeT = CurrTimeT;
-    frame_cnt++;
 }
 
-void rsCollectData::show_depth_mat(Mat &depth_mat){
-    QImage qdepth = QImage( (depth_mat.data), depth_mat.cols, depth_mat.rows, QImage::Format_RGB16 );
+void rsCollectData::show_depth_mat(Mat &depth_mat, qint64 timestamp){
+    QImage qdepth = QImage( (depth_mat.data), depth_mat.cols, depth_mat.rows, QImage::Format_RGB16);
     QImage qdepthshow = qdepth.scaled(depth_mat.cols, depth_mat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
+
+    // Calculate FPS
+    qint64 Interval = timestamp - mLastDepthTimeT;
+    mLastDepthTimeT = timestamp;
+    if ( Interval > 0 && Interval < 1000){
+        mSumDepthTime = mSumDepthTime + static_cast<uint>(Interval);
+        if (mSumDepthTime > 1000){
+            mDepth_frame_cnt = mDepth_frame_cnt > 30 ? 30 : mDepth_frame_cnt;
+            ui->lable_depth_fps->setText(QString::number(mDepth_frame_cnt));
+            mDepth_frame_cnt = 1;
+            mSumDepthTime = mSumDepthTime - 1000;
+        }
+        else{
+            mDepth_frame_cnt++;
+        }
+    }
 }
 
 void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp){
@@ -161,7 +196,23 @@ void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
 
-    cv::waitKey(1);
+    // Calculate Color FPS
+    qint64 Interval = timestamp - mLastColorTimeT;
+    mLastColorTimeT = timestamp;
+    if ( Interval > 0 && Interval < 1000){
+        mSumColorTime = mSumColorTime + static_cast<uint>(Interval);
+        if (mSumColorTime > 1000){
+            mColor_frame_cnt = mColor_frame_cnt > 30 ? 30 : mColor_frame_cnt;
+            ui->lable_color_fps->setText(QString::number(mColor_frame_cnt));
+            ui->lable_depth_fps->setText(QString::number(mColor_frame_cnt));
+            mColor_frame_cnt = 1;
+            qDebug() << mSumColorTime;
+            mSumColorTime = mSumColorTime - 1000;
+        }
+        else{
+            mColor_frame_cnt++;
+        }
+    }
 }
 
 //=======================================
@@ -174,10 +225,11 @@ void rsCollectData::on_Button_UDP_clicked()
     udpSync = new udpthread();
     udpSync->startSync();
 
-    connect(this,SIGNAL(send_RGBD_name(QString, QString)), udpSync, SLOT(receive_Subject_Action(QString,QString)));
+    connect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), udpSync, SLOT(receive_Subject_Action(QString,QString,QString)));
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
-    emit send_RGBD_name(Subject, Action);
+    QString Index = ui->Text_subject_index->toPlainText();
+    emit send_RGBD_name(Subject, Action, Index);
 }
 
 void rsCollectData::on_Button_StopUDP_clicked()
@@ -336,7 +388,7 @@ void rsCollectData::show_BLE_graph(){
 //=============================
 // BLE process slot
 //=============================
-
+/*
 void rsCollectData::startDeviceDiscovery()
 {
     qDeleteAll(devices);
@@ -352,6 +404,7 @@ void rsCollectData::startDeviceDiscovery()
         Q_EMIT stateChanged();
     }
 }
+*/
 
 void rsCollectData::addDevice(const QBluetoothDeviceInfo &info)
 {
@@ -381,6 +434,7 @@ void rsCollectData::itemActivated(QListWidgetItem *item){
     scanServices(text.left((index)));
 }
 
+/*
 void rsCollectData::deviceScanFinished()
 {
     emit devicesUpdated();
@@ -392,7 +446,9 @@ void rsCollectData::deviceScanFinished()
         qDebug() << "[scanFinished]Done! Scan Again!";
     ui->Button_ScanBLE->setEnabled(true);
 }
+*/
 
+/*
 void rsCollectData::scanServices(const QString &address)
 {
     for (int i = 0; i < devices.size(); i++) {
@@ -429,7 +485,9 @@ void rsCollectData::scanServices(const QString &address)
 
     controller->connectToDevice();
 }
+*/
 
+/*
 void rsCollectData::addLowEnergyService(const QBluetoothUuid &serviceUuid)
 {
     qDebug()<< "[addLowEnergyService]::" << serviceUuid; //serv->getName() << endl;
@@ -451,14 +509,18 @@ void rsCollectData::addLowEnergyService(const QBluetoothUuid &serviceUuid)
     }
     emit servicesUpdated();
 }
+*/
 
+/*
 void rsCollectData::serviceScanDone()
 {
     qDebug() << "[serviceScanDone]Service scan done!";
     if (m_services.isEmpty())
         emit servicesUpdated();
 }
+*/
 
+/*
 void rsCollectData::serviceStateChanged(QLowEnergyService::ServiceState s)
 {
     switch (s) {
@@ -488,7 +550,9 @@ void rsCollectData::serviceStateChanged(QLowEnergyService::ServiceState s)
             break;
         }
 }
+*/
 
+/*
 void rsCollectData::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteArray &value)
 {
     if (ch.uuid() == QBluetoothUuid(IMU_uuid)) {
@@ -551,18 +615,23 @@ void rsCollectData::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QBy
         emit DataReceived();
     }
 }
+*/
 
+/*
 void rsCollectData::deviceConnected()
 {
     connected = true;
     controller->discoverServices();
 }
-
-void rsCollectData::errorReceived(QLowEnergyController::Error /*error*/)
+*/
+/*
+void rsCollectData::errorReceived(QLowEnergyController::Error)
 {
     QTextStream(stdout) << "Error: " << controller->errorString();
 }
+*/
 
+/*
 void rsCollectData::disconnectFromDevice()
 {
     // UI always expects disconnect() signal when calling this signal
@@ -575,7 +644,8 @@ void rsCollectData::disconnectFromDevice()
     else
         deviceDisconnected();
 }
-
+*/
+/*
 void rsCollectData::deviceDisconnected()
 {
     QTextStream(stdout) << "[Warning, deviceDisconnected] Disconnect from device" << endl;
@@ -596,7 +666,9 @@ void rsCollectData::deviceDisconnected()
     ui->customPlot_MAG->replot();
     emit disconnected();
 }
+*/
 
+/*
 void rsCollectData::serviceDetailsDiscovered(QLowEnergyService::ServiceState newState)
 {
     if (newState != QLowEnergyService::ServiceDiscovered) {
@@ -619,7 +691,8 @@ void rsCollectData::serviceDetailsDiscovered(QLowEnergyService::ServiceState new
 
     emit characteristicsUpdated();
 }
-
+*/
+/*
 void rsCollectData::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
 {
     if (error == QBluetoothDeviceDiscoveryAgent::PoweredOffError)
@@ -633,18 +706,40 @@ void rsCollectData::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
     emit devicesUpdated();
     emit stateChanged();
 }
-
+*/
 
 void rsCollectData::on_Text_subject_name_textChanged()
 {
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
-    emit send_RGBD_name(Subject, Action);
+    QString Index = ui->Text_subject_index->toPlainText();
+    emit send_RGBD_name(Subject, Action, Index);
 }
 
 void rsCollectData::on_Text_subject_action_textChanged()
 {
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
-    emit send_RGBD_name(Subject, Action);
+    QString Index = ui->Text_subject_index->toPlainText();
+    emit send_RGBD_name(Subject, Action, Index);
+}
+
+void rsCollectData::on_Text_subject_index_textChanged()
+{
+    QString Subject = ui->Text_subject_name->toPlainText();
+    QString Action = ui->Text_subject_action->toPlainText();
+    QString Index = ui->Text_subject_index->toPlainText();
+    emit send_RGBD_name(Subject, Action, Index);
+}
+
+void rsCollectData::on_Button_ScanBLE_clicked()
+{
+    //connect(ui->Button_ScanBLE, SIGNAL(clicked()), this, SLOT(startDeviceDiscovery()));
+    //connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
+            //this, SLOT(addDevice(QBluetoothDeviceInfo)));
+    //connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),
+            //this, SLOT(itemActivated(QListWidgetItem*)));
+    //connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &rsCollectData::deviceScanFinished);
+    //connect(ui->Button_QuitBLE,SIGNAL(clicked()), this, SLOT(disconnectFromDevice()));
+    //connect(this,SIGNAL(DataReceived()),this,SLOT(show_BLE_graph()));
 }

@@ -32,6 +32,7 @@
 #include <opencv2/core/core.hpp>
 #include <rs.hpp>
 #include "rscapturethread.h"
+#include "rsfilterthread.h"
 #include "rssavethread.h"
 #include "deviceinfo.h"
 #include "serviceinfo.h"
@@ -71,8 +72,8 @@ private slots:
     void on_Button_StopUDP_clicked();
 
     // RGB-D
-    void show_color_mat(cv::Mat &color_mat);
-    void show_depth_mat(cv::Mat &depth_mat);
+    void show_color_mat(cv::Mat &color_mat, qint64 timestamp);
+    void show_depth_mat(cv::Mat &depth_mat, qint64 timestamp);
     void show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
 
     // BLE plot
@@ -80,30 +81,30 @@ private slots:
     void show_BLE_graph();
 
     // BLE
-    void startDeviceDiscovery();
-    void scanServices(const QString &address);
-    void disconnectFromDevice();
-    void updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteArray &value);
-    void serviceStateChanged(QLowEnergyService::ServiceState s);
+    ///void startDeviceDiscovery();
+    ///void scanServices(const QString &address);
+    ///void disconnectFromDevice();
+    ///void updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteArray &value);
+    ///void serviceStateChanged(QLowEnergyService::ServiceState s);
     void addDevice(const QBluetoothDeviceInfo&);
     void itemActivated(QListWidgetItem *item);
     // QBluetoothDeviceDiscoveryAgent related
-    void deviceScanFinished();
-    void deviceScanError(QBluetoothDeviceDiscoveryAgent::Error);
+    ///void deviceScanFinished();
+    ///void deviceScanError(QBluetoothDeviceDiscoveryAgent::Error);
     // QLowEnergyController realted
-    void addLowEnergyService(const QBluetoothUuid &uuid);
-    void deviceConnected();
-    void errorReceived(QLowEnergyController::Error);
-    void serviceScanDone();
-    void deviceDisconnected();
+    ///void addLowEnergyService(const QBluetoothUuid &uuid);
+    ///void deviceConnected();
+    ///void errorReceived(QLowEnergyController::Error);
+    ///void serviceScanDone();
+    ///void deviceDisconnected();
     // QLowEnergyService related
-    void serviceDetailsDiscovered(QLowEnergyService::ServiceState newState);
-
-
+    ///void serviceDetailsDiscovered(QLowEnergyService::ServiceState newState);
 
     void on_Text_subject_name_textChanged();
-
     void on_Text_subject_action_textChanged();
+    void on_Text_subject_index_textChanged();
+
+    void on_Button_ScanBLE_clicked();
 
 Q_SIGNALS:
     void devicesUpdated();
@@ -114,11 +115,13 @@ Q_SIGNALS:
     void disconnected();
     void randomAddressChanged();
     void DataReceived(); // For plot BLE received data
-    void send_RGBD_name(QString Subject, QString Action);
+    void send_RGBD_name(QString Subject, QString Action, QString Index);
 
 private:
     // UI
     Ui::rsCollectData *ui;
+    int InitIdx = 1;
+
     // BLE
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     DeviceInfo currentDevice;
@@ -136,15 +139,17 @@ private:
     bool m_deviceScanState;
     // Thread
     rsCaptureThread* rsCapture;
-    rsFilteredThread* rsFiltered;
+    rsFilterThread* rsFilter;
     rssavethread* rsSave;
     udpthread* udpSync;
 
     // parameters
-    // ---- RGBD ---- //
+    // ---- RGBD fps ---- //
+    uint mColor_frame_cnt = 0;  uint mDepth_frame_cnt = 0;
+    qint64 mLastColorTimeT = 0; qint64 mLastDepthTimeT = 0;
+    uint mSumColorTime = 0;     uint mSumDepthTime = 0;
+
     bool save_flag = false;
-    int frame_cnt = 1; int fps = 0; // To calculate the fps of the rgb-d images
-    uint LastTimeT = 0;
     // ---- BLE ---- //
     int save_BLE_cnt = 0;
     bool save_BLE_flag = false;
@@ -153,6 +158,8 @@ private:
     QList<qint64> BLEReceiveDataSet; // Received data for save from BLE sensor
     // ---- BLE plot ----//
     int key_ACC = 1, key_GYR = 1, key_MAG = 1;  // xlabel of BLE graph
+
+
 
 };
 

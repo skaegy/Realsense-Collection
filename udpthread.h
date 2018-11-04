@@ -14,6 +14,8 @@
 #include <netinet/in.h>
 #include <thread>
 
+#include "settings.h"
+
 namespace Ui {
 class rsCollectData;
 class rsCaptureThread;
@@ -28,27 +30,26 @@ class udpthread : public QThread
 {
     Q_OBJECT
 public:
-    udpthread(QObject *parent = 0);
+    udpthread(QObject *parent = nullptr);
     ~udpthread();
     void stop();
     void startSync();
     bool abort;
 
 public slots:
-    void receive_Subject_Action(QString Subject, QString Action);
+    void receive_Subject_Action(QString Subject, QString Action, QString Index);
 
 protected:
     void run();
 
 private:
     QMutex mutex;
-    Ui::rsCollectData* mpUI;
     struct sockaddr_in addr;
     struct sockaddr_in src;
     struct timeval tv;
     const unsigned long buf_size = 128;
     int sockfd;
-    QString SubjectName, ActionName;
+    QString mSubjectName, mActionName, mIndexName;
 };
 
 #endif // UDPTHREAD_H

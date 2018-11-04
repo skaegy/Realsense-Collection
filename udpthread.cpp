@@ -27,16 +27,16 @@ void udpthread::startSync(){
    socklen_t          addr_len=sizeof(addr);
    memset(&addr, 0, sizeof(addr));
    addr.sin_family = AF_INET;       // Use IPV4
-   addr.sin_port   = htons(8888);    //
+   addr.sin_port   = htons(PORT_SCAN);    //
    addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
    // ========= set listen interval =========== //
    tv.tv_sec  = 0;
    tv.tv_usec = 20*1000;  // millisecond to usecond
-   setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(struct timeval));
+   setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&tv), sizeof(struct timeval));
 
    //========== Bind ports. ===========//
-   if (bind(sockfd, (struct sockaddr*)&addr, addr_len) == -1){
+   if (bind(sockfd, reinterpret_cast<struct sockaddr*>(&addr), addr_len) == -1){
        qDebug() << "Failed to bind socket on port";
    }
    else{
@@ -56,7 +56,7 @@ void udpthread::run(){
     while(!abort){
         socklen_t src_len = sizeof(src);
         memset(&src, 0, sizeof(src));
-        int sz = recvfrom(sockfd, buffer, buf_size, 0, (sockaddr*)&src, &src_len);
+        int sz = recvfrom(sockfd, buffer, buf_size, 0, reinterpret_cast<sockaddr*>(&src), &src_len);
         usleep(1000);
         if (sz > 0){
             // Timestamp of the received signal
@@ -64,7 +64,7 @@ void udpthread::run(){
             qDebug() << "Received" << currTime;
 
             QTextStream timestream(&timefile);
-            timestream << SubjectName << " " << ActionName << " " << currTime << endl;
+            timestream << mSubjectName << " " << mActionName << mIndexName << " " << currTime << endl;
         }
     }
 }
@@ -74,7 +74,8 @@ void udpthread::stop(){
     close(sockfd);
 }
 
-void udpthread::receive_Subject_Action(QString Subject, QString Action){
-    SubjectName = Subject;
-    ActionName = Action;
+void udpthread::receive_Subject_Action(QString Subject, QString Action, QString Index){
+    mSubjectName = Subject;
+    mActionName = Action;
+    mIndexName = Index;
 }

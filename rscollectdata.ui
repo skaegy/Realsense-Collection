@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>831</width>
+    <width>1203</width>
     <height>846</height>
    </rect>
   </property>
@@ -17,14 +17,14 @@
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>107</y>
-     <width>86</width>
+     <y>147</y>
+     <width>101</width>
      <height>25</height>
     </rect>
    </property>
    <item>
     <property name="text">
-     <string>640*480</string>
+     <string>1280*720</string>
     </property>
    </item>
   </widget>
@@ -32,7 +32,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>110</y>
+     <y>150</y>
      <width>41</width>
      <height>17</height>
     </rect>
@@ -45,7 +45,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>20</y>
+     <y>60</y>
      <width>101</width>
      <height>85</height>
     </rect>
@@ -90,8 +90,8 @@
   <widget class="QGroupBox" name="RGBBox">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>170</y>
+     <x>350</x>
+     <y>60</y>
      <width>461</width>
      <height>291</height>
     </rect>
@@ -127,8 +127,8 @@
   <widget class="QGroupBox" name="DepthBox">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>470</y>
+     <x>350</x>
+     <y>380</y>
      <width>461</width>
      <height>281</height>
     </rect>
@@ -163,7 +163,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>140</y>
+     <y>183</y>
      <width>51</width>
      <height>16</height>
     </rect>
@@ -176,7 +176,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>20</y>
+     <y>60</y>
      <width>121</width>
      <height>25</height>
     </rect>
@@ -189,7 +189,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>50</y>
+     <y>90</y>
      <width>121</width>
      <height>25</height>
     </rect>
@@ -198,37 +198,11 @@ background-color: rgb(136, 138, 133);</string>
     <string>Close Realsense</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="Button_saveRGBD">
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>90</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Save RGBD </string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="Button_stopSaveRGBD">
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>120</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Stop Save</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="Button_ScanBLE">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>20</y>
+     <x>230</x>
+     <y>430</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -240,8 +214,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_ClearBLE">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>50</y>
+     <x>230</x>
+     <y>460</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -253,8 +227,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_QuitBLE">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>80</y>
+     <x>230</x>
+     <y>490</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -266,8 +240,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QListWidget" name="List_BLE">
    <property name="geometry">
     <rect>
-     <x>520</x>
-     <y>22</y>
+     <x>30</x>
+     <y>430</y>
      <width>191</width>
      <height>141</height>
     </rect>
@@ -276,28 +250,28 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QCustomPlot" name="customPlot_ACC" native="true">
    <property name="geometry">
     <rect>
-     <x>530</x>
-     <y>200</y>
-     <width>281</width>
-     <height>170</height>
+     <x>840</x>
+     <y>40</y>
+     <width>301</width>
+     <height>181</height>
     </rect>
    </property>
   </widget>
   <widget class="QCustomPlot" name="customPlot_GYR" native="true">
    <property name="geometry">
     <rect>
-     <x>530</x>
-     <y>390</y>
-     <width>281</width>
-     <height>170</height>
+     <x>840</x>
+     <y>240</y>
+     <width>301</width>
+     <height>191</height>
     </rect>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>660</x>
-     <y>190</y>
+     <x>970</x>
+     <y>30</y>
      <width>111</width>
      <height>17</height>
     </rect>
@@ -309,8 +283,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>660</x>
-     <y>380</y>
+     <x>970</x>
+     <y>230</y>
      <width>111</width>
      <height>17</height>
     </rect>
@@ -322,8 +296,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>660</x>
-     <y>570</y>
+     <x>970</x>
+     <y>440</y>
      <width>111</width>
      <height>17</height>
     </rect>
@@ -335,18 +309,18 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QCustomPlot" name="customPlot_MAG" native="true">
    <property name="geometry">
     <rect>
-     <x>530</x>
-     <y>580</y>
-     <width>281</width>
-     <height>170</height>
+     <x>840</x>
+     <y>450</y>
+     <width>301</width>
+     <height>191</height>
     </rect>
    </property>
   </widget>
   <widget class="QPushButton" name="Button_startSaveBLE">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>110</y>
+     <x>230</x>
+     <y>520</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -358,8 +332,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_stopSaveBLE">
    <property name="geometry">
     <rect>
-     <x>720</x>
-     <y>140</y>
+     <x>230</x>
+     <y>550</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -368,85 +342,164 @@ background-color: rgb(136, 138, 133);</string>
     <string>Stop save</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="Text_subject_name">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>50</y>
-     <width>131</width>
-     <height>28</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QTextEdit" name="Text_subject_action">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>110</y>
-     <width>131</width>
-     <height>28</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>24</y>
-     <width>67</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Name:</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_6">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>90</y>
-     <width>81</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Movement:</string>
-   </property>
-  </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>340</x>
-     <y>0</y>
-     <width>151</width>
+     <x>20</x>
+     <y>220</y>
+     <width>311</width>
      <height>161</height>
     </rect>
    </property>
    <property name="title">
     <string>Subject</string>
    </property>
+   <widget class="QTextEdit" name="Text_subject_name">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>30</y>
+      <width>151</width>
+      <height>28</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>74</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Action:</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="Text_subject_action">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>70</y>
+      <width>151</width>
+      <height>28</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="Text_subject_index">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>110</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>114</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Index:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Name:</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>0</y>
+     <y>20</y>
      <width>311</width>
-     <height>161</height>
+     <height>191</height>
     </rect>
    </property>
    <property name="title">
     <string>Realsense</string>
    </property>
+   <widget class="QComboBox" name="comboBox_2">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>160</y>
+      <width>101</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>1280*720</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QPushButton" name="Button_stopSaveRGBD">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>160</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop Save</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_saveRGBD">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>130</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save RGBD </string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>510</x>
-     <y>0</y>
+     <x>20</x>
+     <y>390</y>
      <width>311</width>
-     <height>171</height>
+     <height>201</height>
     </rect>
    </property>
    <property name="title">
@@ -456,8 +509,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_UDP">
    <property name="geometry">
     <rect>
-     <x>550</x>
-     <y>170</y>
+     <x>120</x>
+     <y>620</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -469,8 +522,8 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QPushButton" name="Button_StopUDP">
    <property name="geometry">
     <rect>
-     <x>710</x>
-     <y>170</y>
+     <x>220</x>
+     <y>620</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -479,6 +532,105 @@ background-color: rgb(136, 138, 133);</string>
     <string>Stop UDP</string>
    </property>
   </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>590</y>
+     <width>311</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>GroupBox</string>
+   </property>
+   <widget class="QLabel" name="Label_rgb_resolution_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>34</y>
+      <width>81</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Port=8888</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>30</y>
+     <width>41</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>fps:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>350</y>
+     <width>41</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>fps:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lable_color_fps">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>30</y>
+     <width>41</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lable_depth_fps">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>350</y>
+     <width>41</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <zorder>groupBox_4</zorder>
   <zorder>groupBox</zorder>
   <zorder>groupBox_3</zorder>
   <zorder>groupBox_2</zorder>
@@ -490,8 +642,6 @@ background-color: rgb(136, 138, 133);</string>
   <zorder>Label_depth_resolution</zorder>
   <zorder>Button_openRSThread</zorder>
   <zorder>Button_closeRSThread</zorder>
-  <zorder>Button_saveRGBD</zorder>
-  <zorder>Button_stopSaveRGBD</zorder>
   <zorder>Button_ScanBLE</zorder>
   <zorder>Button_ClearBLE</zorder>
   <zorder>Button_QuitBLE</zorder>
@@ -504,12 +654,12 @@ background-color: rgb(136, 138, 133);</string>
   <zorder>customPlot_MAG</zorder>
   <zorder>Button_startSaveBLE</zorder>
   <zorder>Button_stopSaveBLE</zorder>
-  <zorder>Text_subject_name</zorder>
-  <zorder>Text_subject_action</zorder>
-  <zorder>label_5</zorder>
-  <zorder>label_6</zorder>
   <zorder>Button_UDP</zorder>
   <zorder>Button_StopUDP</zorder>
+  <zorder>label_9</zorder>
+  <zorder>label_10</zorder>
+  <zorder>lable_color_fps</zorder>
+  <zorder>lable_depth_fps</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
