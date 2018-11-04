@@ -38,6 +38,7 @@
 #include "serviceinfo.h"
 #include "characteristicinfo.h"
 #include "udpthread.h"
+#include "blethread.h"
 
 namespace Ui {
 class rsCollectData;
@@ -54,7 +55,7 @@ class rsCollectData : public QWidget
     Q_OBJECT
 
 public:
-    explicit rsCollectData(QWidget *parent = 0);
+    explicit rsCollectData(QWidget *parent = nullptr);
     ~rsCollectData();
 
     const QString ear_uuid = "47442014-0f63-5b27-9122-728099603712";
@@ -77,71 +78,34 @@ private slots:
     void show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
 
     // BLE plot
+    void on_Button_ScanBLE_clicked();
     void init_BLE_graph();
-    void show_BLE_graph();
+    void show_BLE_graph(QVector<qint64> BLEdata);
+    void reset_BLE_graph();
 
     // BLE
-    ///void startDeviceDiscovery();
-    ///void scanServices(const QString &address);
-    ///void disconnectFromDevice();
-    ///void updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteArray &value);
-    ///void serviceStateChanged(QLowEnergyService::ServiceState s);
-    void addDevice(const QBluetoothDeviceInfo&);
     void itemActivated(QListWidgetItem *item);
-    // QBluetoothDeviceDiscoveryAgent related
-    ///void deviceScanFinished();
-    ///void deviceScanError(QBluetoothDeviceDiscoveryAgent::Error);
-    // QLowEnergyController realted
-    ///void addLowEnergyService(const QBluetoothUuid &uuid);
-    ///void deviceConnected();
-    ///void errorReceived(QLowEnergyController::Error);
-    ///void serviceScanDone();
-    ///void deviceDisconnected();
-    // QLowEnergyService related
-    ///void serviceDetailsDiscovered(QLowEnergyService::ServiceState newState);
+    void receiveItem(QListWidgetItem *item);
 
     void on_Text_subject_name_textChanged();
     void on_Text_subject_action_textChanged();
     void on_Text_subject_index_textChanged();
 
-    void on_Button_ScanBLE_clicked();
-
 Q_SIGNALS:
-    void devicesUpdated();
-    void servicesUpdated();
-    void characteristicsUpdated();
-    void updateChanged();
-    void stateChanged();
-    void disconnected();
-    void randomAddressChanged();
-    void DataReceived(); // For plot BLE received data
     void send_RGBD_name(QString Subject, QString Action, QString Index);
+    void send_BLEsave_flag(bool save_ble_flag);
 
 private:
     // UI
     Ui::rsCollectData *ui;
     int InitIdx = 1;
 
-    // BLE
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent;
-    DeviceInfo currentDevice;
-    QBluetoothLocalDevice *localDevice;
-    QList<QObject*> devices;
-    QList<QObject*> m_services;
-    QList<QObject*> m_characteristics;
-    QString m_previousAddress;
-    QString m_message;
-    bool connected;
-    QLowEnergyController *controller;
-    QLowEnergyService *m_eARservice;
-    QLowEnergyDescriptor m_notificationDesc;
-    QLowEnergyCharacteristic m_IMUchar;
-    bool m_deviceScanState;
     // Thread
     rsCaptureThread* rsCapture;
     rsFilterThread* rsFilter;
     rssavethread* rsSave;
     udpthread* udpSync;
+    blethread* EARSensor;
 
     // parameters
     // ---- RGBD fps ---- //

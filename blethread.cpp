@@ -1,7 +1,9 @@
 #include "blethread.h"
 
 blethread::blethread(QObject* parent)
-    : QThread(parent)
+    : QThread(parent),
+      discoveryAgent(new QBluetoothDeviceDiscoveryAgent),
+      localDevice(new QBluetoothLocalDevice)
 {
     mutex.lock();
     abort = false;
@@ -12,14 +14,7 @@ blethread::blethread(QObject* parent)
     mutex.unlock();
 
     connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &blethread::deviceScanFinished);
-    //connect(ui->Button_ScanBLE, SIGNAL(clicked()), this, SLOT(startDeviceDiscovery()));
-    //connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
-            //this, SLOT(addDevice(QBluetoothDeviceInfo)));
-    //connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),
-            //this, SLOT(itemActivated(QListWidgetItem*)));
-
-    //connect(ui->Button_QuitBLE,SIGNAL(clicked()), this, SLOT(disconnectFromDevice()));
-    //connect(this,SIGNAL(DataReceived()),this,SLOT(show_BLE_graph()));
+    connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),this, SLOT(addDevice(QBluetoothDeviceInfo)));
 }
 
 blethread::~blethread()
@@ -27,13 +22,27 @@ blethread::~blethread()
     mutex.lock();
     abort = true;
     mutex.unlock();
+    delete discoveryAgent;
+    delete controller;
+    qDeleteAll(devices);
+    qDeleteAll(m_services);
+    qDeleteAll(m_characteristics);
     wait();
+}
+
+void blethread::run(){
+    while(!abort){
+        if (mSaveFlag){
+            //save...
+        }
+    }
 }
 
 //----------------------//
 // ---  BLE DEVICE  --- //
 //----------------------//
 void blethread::startDeviceDiscovery(){
+
     qDeleteAll(devices);
     devices.clear();
 
@@ -70,6 +79,26 @@ void blethread::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
         QTextStream(stdout) << "[deviceScanError]An unknown error has occurred." << endl;
 
     m_deviceScanState = false;
+}
+
+void blethread::addDevice(const QBluetoothDeviceInfo &info)
+{
+    QString label = QString("%1 %2").arg(info.address().toString()).arg(info.name());
+
+    DeviceInfo *d = new DeviceInfo(info);
+    devices.append(d);
+
+    QListWidgetItem *item = new QListWidgetItem(label);
+    QBluetoothLocalDevice::Pairing pairingStatus = localDevice->pairingStatus(info.address());
+    if (pairingStatus == QBluetoothLocalDevice::Paired || pairingStatus == QBluetoothLocalDevice::AuthorizedPaired )
+        item->setTextColor(QColor(Qt::green));
+    else
+        item->setTextColor(QColor(Qt::black));
+
+    emit sendItem(item);
+
+        //ui->List_BLE->addItem(item);
+
 }
 
 //----------------------//
@@ -188,7 +217,7 @@ void blethread::disconnectFromDevice()
     // TODO what is really needed is to extend state() to a multi value
     // and thus allowing UI to keep track of controller progress in addition to
     // device scan progress
-
+    qDebug() << "[Disconnect...]";
     if (controller->state() != QLowEnergyController::UnconnectedState)
         controller->disconnectFromDevice();
     else{
@@ -240,16 +269,14 @@ void blethread::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteAr
         int MAG_Z =  QString(mz.toHex()).toInt(&bStatus,16);
         //if (MAG_Z > 32768) MAG_Z = std::abs(MAG_Z - 65536);
 
-        QString aa = QString("HI%1").arg(1);
-
         QString DataStr = QString("%1\t%2\t%3\t%4\t%5\t%6\t%7\t%8\t%9\t%10")
                 .number(currTime).number(ACC_X).number(ACC_Y).number(ACC_Z)
                 .number(GYR_X).number(GYR_Y).number(GYR_Z)
                 .number(MAG_X).number(MAG_Y).number(MAG_Z);
 
-        qDebug() << "Received DATA --- " << DataStr;
+        //qDebug() << "Received DATA --- " << DataStr;
 
-
+        QVector<qint64> BLEReceiveData(10);
         BLEReceiveData[0]=currTime;
         BLEReceiveData[1]=ACC_X;
         BLEReceiveData[2]=ACC_Y;
@@ -273,13 +300,14 @@ void blethread::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteAr
             BLEReceiveDataSet.push_back(BLEReceiveData[8]);
             BLEReceiveDataSet.push_back(BLEReceiveData[9]);
         }
-        emit updateGraph();
+        emit updateGraph(BLEReceiveData);
     }
 }
 
 void blethread::receiveSaveFlag(bool save_ble_flag){
     mutex.lock();
     mSaveFlag = save_ble_flag;
+    qDebug() << mSaveFlag;
     mutex.unlock();
 }
 

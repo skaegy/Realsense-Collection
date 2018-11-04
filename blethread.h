@@ -4,7 +4,10 @@
 #include <QThread>
 #include <QMutex>
 #include <QString>
+#include <QList>
+#include <QVector>
 #include <QDateTime>
+#include <QListWidgetItem>
 
 #include <QtBluetooth/qbluetoothaddress.h>
 #include <QtBluetooth/qbluetoothdevicediscoveryagent.h>
@@ -38,7 +41,8 @@ Q_SIGNALS:
     void servicesUpdated();
     // -- BLE Data signals --//
     void resetGraph();
-    void updateGraph();
+    void updateGraph(QVector<qint64> BLEdata);
+    void sendItem(QListWidgetItem *item);
 
 public slots:
     // -- BLE device -- //
@@ -46,6 +50,7 @@ public slots:
     void deviceScanFinished();
     void deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error);
     void deviceConnected();
+    void addDevice(const QBluetoothDeviceInfo &info);
     // -- BLE controller -- //
     void errorReceived(QLowEnergyController::Error /*error*/);
     // -- BLE service --//
@@ -65,7 +70,7 @@ public slots:
 protected:
     void run();
 
-private:
+public:
     // BLE
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     DeviceInfo currentDevice;
@@ -73,8 +78,8 @@ private:
     QList<QObject*> devices; //Y
     QList<QObject*> m_services; //Y
     QList<QObject*> m_characteristics; //Y
-    QString m_previousAddress;
-    QString m_message;
+private:
+    // BLE
     bool connected;
     QLowEnergyController *controller;
     QLowEnergyService *m_eARservice;
@@ -82,7 +87,7 @@ private:
     QLowEnergyCharacteristic m_IMUchar;
     bool m_deviceScanState;
 
-    qint64 BLEReceiveData[10] = {0}; // Received data from BLE sensor
+    //qint64 BLEReceiveData[10] = {0}; // Received data from BLE sensor
     QList<qint64> BLEReceiveDataSet; // Received data (qint64) for save from BLE sensor
     QList<QString> BLEReceiveDatas;  // Received data (QString) for save from BLE sensor
     QString mSubjectName, mActionName, mIndexName;
