@@ -27,9 +27,9 @@ void rsCaptureThread::run(){
     while(!abort){
         usleep(100);
         frameset rs_d415 = pipe.wait_for_frames();
-        frameset align_d415 = align.process(rs_d415);
-        frame depth_frame = align_d415.get_depth_frame(); 
-        frame color_frame = align_d415.get_color_frame();
+        //frameset align_d415 = align.process(rs_d415);
+        frame depth_frame = rs_d415.get_depth_frame();
+        frame color_frame = rs_d415.get_color_frame();
         qint64 rsTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
 
         emit sendRGBDFrame(color_frame, depth_frame, rsTime);

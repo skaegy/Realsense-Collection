@@ -40,6 +40,7 @@
 #include "udpthread.h"
 #include "blethread.h"
 
+/*
 namespace Ui {
 class rsCollectData;
 class rsCaptureThread;
@@ -49,6 +50,7 @@ class CharacteristicInfo;
 class DeviceInfo;
 class ServiceInfo;
 }
+*/
 
 class rsCollectData : public QWidget
 {
@@ -91,6 +93,14 @@ private slots:
     void on_Text_subject_action_textChanged();
     void on_Text_subject_index_textChanged();
 
+    void on_checkPlotGraph_stateChanged(int arg1);
+
+    void on_Button_SAVEALL_clicked();
+
+    void on_Button_SAVESTOPALL_clicked();
+
+    void on_Button_QuitBLE_clicked();
+
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);
     void send_BLEsave_flag(bool save_ble_flag);
@@ -99,6 +109,8 @@ private:
     // UI
     Ui::rsCollectData *ui;
     int InitIdx = 1;
+    bool mbShowGraph;
+
 
     // Thread
     rsCaptureThread* rsCapture;
@@ -117,9 +129,11 @@ private:
     // ---- BLE ---- //
     int save_BLE_cnt = 0;
     bool save_BLE_flag = false;
-    bool BLEData_flag = false;
     qint64 BLEReceiveData[10] = {0}; // Received data from BLE sensor
     QList<qint64> BLEReceiveDataSet; // Received data for save from BLE sensor
+    qint64 mLastEarTime = 0;
+    qint64 mSumEarTime = 0;
+
     // ---- BLE plot ----//
     int key_ACC = 1, key_GYR = 1, key_MAG = 1;  // xlabel of BLE graph
 

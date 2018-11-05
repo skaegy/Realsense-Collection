@@ -23,8 +23,10 @@ rsCollectData::rsCollectData(QWidget *parent) :
 
     ui->Button_startSaveBLE->setEnabled(false);
     ui->Button_stopSaveBLE->setEnabled(false);
-
     ui->Button_StopUDP->setEnabled(false);
+
+    ui->Button_QuitBLE->setEnabled(false);
+    ui->Button_ClearBLE->setEnabled(false);
 
     connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),this, SLOT(itemActivated(QListWidgetItem*)));
     init_BLE_graph();
@@ -61,6 +63,8 @@ void rsCollectData::on_Button_closeRSThread_clicked()
 {
     ui->Button_closeRSThread->setEnabled(false);
     ui->Button_openRSThread->setEnabled(true);
+    ui->Button_saveRGBD->setEnabled(false);
+    ui->Button_stopSaveRGBD->setEnabled(false);
     rsCapture->stop();
     rsFilter->stop();
     if (save_flag){
@@ -81,6 +85,9 @@ void rsCollectData::on_Button_saveRGBD_clicked()
 {
     ui->Button_stopSaveRGBD->setEnabled(true);
     ui->Button_saveRGBD->setEnabled(false);
+    ui->Text_subject_name->setEnabled(false);
+    ui->Text_subject_action->setEnabled(false);
+    ui->Text_subject_index->setEnabled(false);
     rsSave = new rssavethread();
     save_flag = true;
 
@@ -104,6 +111,9 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
 {
     ui->Button_stopSaveRGBD->setEnabled(false);
     ui->Button_saveRGBD->setEnabled(true);
+    ui->Text_subject_name->setEnabled(true);
+    ui->Text_subject_action->setEnabled(true);
+    ui->Text_subject_index->setEnabled(true);
     rsSave->stop();
     save_flag = false;
 
@@ -192,7 +202,6 @@ void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64
             ui->lable_color_fps->setText(QString::number(mColor_frame_cnt));
             ui->lable_depth_fps->setText(QString::number(mColor_frame_cnt));
             mColor_frame_cnt = 1;
-            qDebug() << mSumColorTime;
             mSumColorTime = mSumColorTime - 1000;
         }
         else{
@@ -229,11 +238,46 @@ void rsCollectData::on_Button_StopUDP_clicked()
 //=============================
 // Show and Save BLE slots
 //=============================
+void rsCollectData::on_Button_ScanBLE_clicked()
+{
+    ui->Button_ScanBLE->setEnabled(false);
+    ui->Button_QuitBLE->setEnabled(true);
+    ui->Button_ClearBLE->setEnabled(true);
+    ui->Button_startSaveBLE->setEnabled(true);
+    ui->Button_stopSaveBLE->setEnabled(false);
+
+    EARSensor = new blethread();
+    connect(EARSensor, SIGNAL(sendItem(QListWidgetItem*)), this, SLOT(receiveItem(QListWidgetItem*)));
+    connect(this, SIGNAL(send_RGBD_name(QString, QString, QString)), EARSensor, SLOT(receiveFileName(QString, QString, QString)));
+    connect(ui->Button_QuitBLE,SIGNAL(clicked()), EARSensor, SLOT(disconnectFromDevice()) );
+    connect(EARSensor, SIGNAL(resetGraph()), this, SLOT(reset_BLE_graph()));
+    connect(EARSensor,SIGNAL(updateGraph(QVector<qint64>)),this, SLOT(show_BLE_graph(QVector<qint64>)));
+    connect(this, SIGNAL(send_BLEsave_flag(bool)), EARSensor, SLOT(receiveSaveFlag(bool)));
+
+    QString Subject = ui->Text_subject_name->toPlainText();
+    QString Action = ui->Text_subject_action->toPlainText();
+    QString Index = ui->Text_subject_index->toPlainText();
+    emit send_RGBD_name(Subject, Action, Index);
+    EARSensor->startDeviceDiscovery();
+}
+
+void rsCollectData::on_Button_QuitBLE_clicked()
+{
+    ui->Button_ScanBLE->setEnabled(true);
+}
 
 void rsCollectData::on_Button_startSaveBLE_clicked()
 {
+    QString Subject = ui->Text_subject_name->toPlainText();
+    QString Action = ui->Text_subject_action->toPlainText();
+    QString Index = ui->Text_subject_index->toPlainText();
+    emit send_RGBD_name(Subject, Action, Index);
+
     ui->Button_stopSaveBLE->setEnabled(true);
     ui->Button_startSaveBLE->setEnabled(false);
+    ui->Text_subject_name->setEnabled(false);
+    ui->Text_subject_action->setEnabled(false);
+    ui->Text_subject_index->setEnabled(false);
     save_BLE_flag = true;
     emit send_BLEsave_flag(save_BLE_flag);
 }
@@ -242,41 +286,11 @@ void rsCollectData::on_Button_stopSaveBLE_clicked()
 {
     ui->Button_stopSaveBLE->setEnabled(false);
     ui->Button_startSaveBLE->setEnabled(true);
+    ui->Text_subject_name->setEnabled(true);
+    ui->Text_subject_action->setEnabled(true);
+    ui->Text_subject_index->setEnabled(true);
     save_BLE_flag = false;
     emit send_BLEsave_flag(save_BLE_flag);
-
-    /*
-    qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    QString filename = QString("/home/skaegy/Data/EAR/%1_%2_%3.csv")
-            .arg(currTime)
-            .arg(ui->Text_subject_name->toPlainText())
-            .arg(ui->Text_subject_action->toPlainText());
-
-    QFile saveBLEfile(filename);
-    if(saveBLEfile.open(QFile::WriteOnly |QFile::Truncate))
-    {
-        qDebug() << "Start writing data to ... " << filename;
-        QTextStream stream(&saveBLEfile);
-        stream << "Timestamp" << "\t" << "ACC_X" << "\t" << "ACC_Y" << "\t" << "ACC_Z" << "\t"
-                     << "GYR_X" << "\t" << "GYR_Y" << "\t" << "GYR_Z" << "\t"
-                     << "MAG_X" << "\t" << "MAG_Y" << "\t" << "MAG_Z" << "\n";
-        for (QList<qint64>::iterator it = BLEReceiveDataSet.begin(); it!=BLEReceiveDataSet.end(); it++){
-            save_BLE_cnt++;
-
-            if (save_BLE_cnt != 10){
-                stream << *it << "\t";
-            }
-            else{
-                stream << *it << "\n";
-                save_BLE_cnt = 0;
-            }
-        }
-
-        saveBLEfile.close();
-        qDebug() << "BLE-eAR sensor data is saved";
-    }
-    BLEReceiveDataSet.clear();
-    */
 }
 
 void rsCollectData::init_BLE_graph(){
@@ -352,28 +366,39 @@ void rsCollectData::init_BLE_graph(){
 
 void rsCollectData::show_BLE_graph(QVector<qint64> BLEdata){
 
-    // ========= PLOT ACC ========= //
-    ui->customPlot_ACC->graph(0)->addData(key_ACC, BLEdata[1]);
-    ui->customPlot_ACC->graph(1)->addData(key_ACC, BLEdata[2]);
-    ui->customPlot_ACC->graph(2)->addData(key_ACC, BLEdata[3]);
-    ui->customPlot_ACC->xAxis->setRange(key_ACC, 100, Qt::AlignRight);
-    ++key_ACC;
-    ui->customPlot_ACC->replot();
-    // ========= PLOT GYR ========= //
-    ui->customPlot_GYR->graph(0)->addData(key_GYR, BLEdata[4]);
-    ui->customPlot_GYR->graph(1)->addData(key_GYR, BLEdata[5]);
-    ui->customPlot_GYR->graph(2)->addData(key_GYR, BLEdata[6]);
-    ui->customPlot_GYR->xAxis->setRange(key_GYR, 100, Qt::AlignRight);
-    ++key_GYR;
-    ui->customPlot_GYR->replot();
-    // ========= PLOT MAG ========= //
-    ui->customPlot_MAG->graph(0)->addData(key_MAG, BLEdata[7]);
-    ui->customPlot_MAG->graph(1)->addData(key_MAG, BLEdata[8]);
-    ui->customPlot_MAG->graph(2)->addData(key_MAG, BLEdata[9]);
-    ui->customPlot_MAG->xAxis->setRange(key_MAG, 100, Qt::AlignRight);
-    ++key_MAG;
-    ui->customPlot_MAG->replot();
+    if (BLEdata[0] > mLastEarTime){
+        mSumEarTime = mSumEarTime + BLEdata[0] - mLastEarTime;
+        save_BLE_cnt++;
+        if (mSumEarTime > 1000){
+            mSumEarTime = 0;
+            save_BLE_cnt = 0;
+        }
 
+        if (mbShowGraph){
+            // ========= PLOT ACC ========= //
+            ui->customPlot_ACC->graph(0)->addData(key_ACC, BLEdata[1]);
+            ui->customPlot_ACC->graph(1)->addData(key_ACC, BLEdata[2]);
+            ui->customPlot_ACC->graph(2)->addData(key_ACC, BLEdata[3]);
+            ui->customPlot_ACC->xAxis->setRange(key_ACC, 50, Qt::AlignRight);
+            ++key_ACC;
+            ui->customPlot_ACC->replot();
+            // ========= PLOT GYR ========= //
+            ui->customPlot_GYR->graph(0)->addData(key_GYR, BLEdata[4]);
+            ui->customPlot_GYR->graph(1)->addData(key_GYR, BLEdata[5]);
+            ui->customPlot_GYR->graph(2)->addData(key_GYR, BLEdata[6]);
+            ui->customPlot_GYR->xAxis->setRange(key_GYR, 50, Qt::AlignRight);
+            ++key_GYR;
+            ui->customPlot_GYR->replot();
+            // ========= PLOT MAG ========= //
+            ui->customPlot_MAG->graph(0)->addData(key_MAG, BLEdata[7]);
+            ui->customPlot_MAG->graph(1)->addData(key_MAG, BLEdata[8]);
+            ui->customPlot_MAG->graph(2)->addData(key_MAG, BLEdata[9]);
+            ui->customPlot_MAG->xAxis->setRange(key_MAG, 50, Qt::AlignRight);
+            ++key_MAG;
+            ui->customPlot_MAG->replot();
+        }
+    }
+    mLastEarTime = BLEdata[0];
 }
 
 void rsCollectData::reset_BLE_graph(){
@@ -416,6 +441,7 @@ void rsCollectData::on_Text_subject_name_textChanged()
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
     QString Index = ui->Text_subject_index->toPlainText();
+    ui->Text_subject_index->setText("1");
     emit send_RGBD_name(Subject, Action, Index);
 }
 
@@ -424,6 +450,7 @@ void rsCollectData::on_Text_subject_action_textChanged()
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
     QString Index = ui->Text_subject_index->toPlainText();
+    ui->Text_subject_index->setText("1");
     emit send_RGBD_name(Subject, Action, Index);
 }
 
@@ -435,21 +462,44 @@ void rsCollectData::on_Text_subject_index_textChanged()
     emit send_RGBD_name(Subject, Action, Index);
 }
 
-void rsCollectData::on_Button_ScanBLE_clicked()
+void rsCollectData::on_checkPlotGraph_stateChanged(int arg1)
 {
-    ui->Button_ScanBLE->setEnabled(false);
-    ui->Button_QuitBLE->setEnabled(true);
-    ui->Button_ClearBLE->setEnabled(true);
-    ui->Button_startSaveBLE->setEnabled(true);
-    ui->Button_stopSaveBLE->setEnabled(false);
-
-    EARSensor = new blethread();
-    connect(EARSensor, SIGNAL(sendItem(QListWidgetItem*)), this, SLOT(receiveItem(QListWidgetItem*)));
-
-    EARSensor->startDeviceDiscovery();
-    connect(ui->Button_QuitBLE,SIGNAL(clicked()), EARSensor, SLOT(disconnectFromDevice()) );
-    connect(EARSensor, SIGNAL(resetGraph()), this, SLOT(reset_BLE_graph()));
-    connect(EARSensor,SIGNAL(updateGraph(QVector<qint64>)),this, SLOT(show_BLE_graph(QVector<qint64>)));
-    connect(this, SIGNAL(send_BLEsave_flag(bool)), EARSensor, SLOT(receiveSaveFlag(bool)));
+    if (arg1 == 0)
+        mbShowGraph = false;
+    else
+        mbShowGraph = true;
 }
+
+void rsCollectData::on_Button_SAVEALL_clicked()
+{
+    if (ui->Button_saveRGBD->isEnabled() && ui->Button_startSaveBLE->isEnabled()){
+        ui->Button_SAVESTOPALL->setEnabled(true);
+        ui->Button_SAVEALL->setEnabled(false);
+        ui->Button_saveRGBD->click();
+        ui->Button_startSaveBLE->click();
+    }
+    else{
+        qDebug() << "[WARNING]Invalid process...  Wait until realsense and EAR sensor are ready...";
+    }
+}
+
+void rsCollectData::on_Button_SAVESTOPALL_clicked()
+{
+    if (ui->Button_stopSaveRGBD->isEnabled() && ui->Button_stopSaveBLE->isEnabled()){
+        ui->Button_SAVESTOPALL->setEnabled(false);
+        ui->Button_SAVEALL->setEnabled(true);
+        ui->Button_stopSaveRGBD->click();
+        ui->Button_stopSaveBLE->click();
+
+        QString Index = ui->Text_subject_index->toPlainText();
+        int idx = Index.toInt();
+        ui->Text_subject_index->setText(QString::number(idx+1));
+
+    }
+    else{
+        qDebug() << "[WARNING]Invalid process... Wait until realsense and EAR sensor are ready...";
+    }
+}
+
+
 

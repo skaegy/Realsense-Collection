@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1203</width>
-    <height>846</height>
+    <height>713</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -202,7 +202,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>430</y>
+     <y>420</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -215,7 +215,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>460</y>
+     <y>450</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -228,7 +228,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>490</y>
+     <y>480</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -241,7 +241,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>430</y>
+     <y>420</y>
      <width>191</width>
      <height>141</height>
     </rect>
@@ -320,7 +320,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>520</y>
+     <y>510</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -333,7 +333,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>550</y>
+     <y>540</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -505,12 +505,54 @@ background-color: rgb(136, 138, 133);</string>
    <property name="title">
     <string>eAR-sensor</string>
    </property>
+   <widget class="QLabel" name="label_ConnectStatus">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>0</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_BLEfps">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>0</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkPlotGraph">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>174</y>
+      <width>92</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot graph</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QPushButton" name="Button_UDP">
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>620</y>
+     <y>630</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -523,7 +565,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>620</y>
+     <y>630</y>
      <width>89</width>
      <height>25</height>
     </rect>
@@ -536,13 +578,13 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>590</y>
+     <y>600</y>
      <width>311</width>
      <height>71</height>
     </rect>
    </property>
    <property name="title">
-    <string>GroupBox</string>
+    <string>UDP for VICON</string>
    </property>
    <widget class="QLabel" name="Label_rgb_resolution_2">
     <property name="geometry">
@@ -630,6 +672,32 @@ background-color: rgb(136, 138, 133);</string>
     <string/>
    </property>
   </widget>
+  <widget class="QPushButton" name="Button_SAVEALL">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>10</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>SAVE ALL!</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Button_SAVESTOPALL">
+   <property name="geometry">
+    <rect>
+     <x>570</x>
+     <y>10</y>
+     <width>131</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>STOP SAVE ALL!</string>
+   </property>
+  </widget>
   <zorder>groupBox_4</zorder>
   <zorder>groupBox</zorder>
   <zorder>groupBox_3</zorder>
@@ -660,6 +728,8 @@ background-color: rgb(136, 138, 133);</string>
   <zorder>label_10</zorder>
   <zorder>lable_color_fps</zorder>
   <zorder>lable_depth_fps</zorder>
+  <zorder>Button_SAVEALL</zorder>
+  <zorder>Button_SAVESTOPALL</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

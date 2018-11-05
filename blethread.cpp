@@ -146,6 +146,7 @@ void blethread::scanServices(const QString &address)
             this, &blethread::addLowEnergyService);
     connect(controller, &QLowEnergyController::discoveryFinished,
             this, &blethread::serviceScanDone);
+    connect(this, &blethread::startSaveCSV, this, &blethread::saveBLEData);
 
     controller->connectToDevice();
 }
@@ -164,8 +165,7 @@ void blethread::addLowEnergyService(const QBluetoothUuid &serviceUuid)
             connect(m_eARservice, &QLowEnergyService::characteristicChanged, this,&blethread::updateIMUvalue);
 
             m_eARservice->discoverDetails();
-
-            start();
+            //start();
        }
     }
     emit servicesUpdated();
@@ -238,43 +238,39 @@ void blethread::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteAr
     if (ch.uuid() == QBluetoothUuid(IMU_uuid)) {
         qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
 
-        QByteArray ax = value.mid(2,2);
-        QByteArray ay = value.mid(4,2);
-        QByteArray az = value.mid(6,2);
-        QByteArray gx = value.mid(8,2);
-        QByteArray gy = value.mid(10,2);
-        QByteArray gz = value.mid(12,2);
-        QByteArray mx = value.mid(14,2);
-        QByteArray my = value.mid(16,2);
+        int start_idx = 2; int byteL = 2;
+
+        QByteArray ax = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
+        QByteArray ay = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
+        QByteArray az = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
+        QByteArray gx = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
+        QByteArray gy = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
+        QByteArray gz = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
+        QByteArray mx = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
+        QByteArray my = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
         QByteArray mz = value.right(2);
 
         bool bStatus = false;
         // ACC, GYR, MAG of IMU
         int ACC_X =  QString(ax.toHex()).toInt(&bStatus,16);
-        //if (ACC_X > 32768) ACC_X = ACC_X - 65536;
+        if (ACC_X > 32768) ACC_X = ACC_X - 65536;
         int ACC_Y =  QString(ay.toHex()).toInt(&bStatus,16);
-        //if (ACC_Y > 32768) ACC_Y = ACC_Y - 65536;
+        if (ACC_Y > 32768) ACC_Y = ACC_Y - 65536;
         int ACC_Z =  QString(az.toHex()).toInt(&bStatus,16);
-        //if (ACC_Z > 32768) ACC_Z = ACC_Z - 65536;
+        if (ACC_Z > 32768) ACC_Z = ACC_Z - 65536;
         int GYR_X =  QString(gx.toHex()).toInt(&bStatus,16);
-        //if (GYR_X > 32768) GYR_X = GYR_X - 65536;
+        if (GYR_X > 32768) GYR_X = GYR_X - 65536;
         int GYR_Y =  QString(gy.toHex()).toInt(&bStatus,16);
-        //if (GYR_Y > 32768) GYR_Y = GYR_Y - 65536;
+        if (GYR_Y > 32768) GYR_Y = GYR_Y - 65536;
         int GYR_Z =  QString(gz.toHex()).toInt(&bStatus,16);
-        //if (GYR_Z > 32768) GYR_Z = GYR_Z - 65536;
+        if (GYR_Z > 32768) GYR_Z = GYR_Z - 65536;
         int MAG_X =  QString(mx.toHex()).toInt(&bStatus,16);
-        //if (MAG_X > 32768) MAG_X = std::abs(MAG_X - 65536);
+        if (MAG_X > 32768) MAG_X = MAG_X - 65536;
         int MAG_Y =  QString(my.toHex()).toInt(&bStatus,16);
-        //if (MAG_Y > 32768) MAG_Y = std::abs(MAG_Y - 65536);
+        if (MAG_Y > 32768) MAG_Y = MAG_Y - 65536;
         int MAG_Z =  QString(mz.toHex()).toInt(&bStatus,16);
-        //if (MAG_Z > 32768) MAG_Z = std::abs(MAG_Z - 65536);
+        if (MAG_Z > 32768) MAG_Z = MAG_Z - 65536;
 
-        QString DataStr = QString("%1\t%2\t%3\t%4\t%5\t%6\t%7\t%8\t%9\t%10")
-                .number(currTime).number(ACC_X).number(ACC_Y).number(ACC_Z)
-                .number(GYR_X).number(GYR_Y).number(GYR_Z)
-                .number(MAG_X).number(MAG_Y).number(MAG_Z);
-
-        //qDebug() << "Received DATA --- " << DataStr;
 
         QVector<qint64> BLEReceiveData(10);
         BLEReceiveData[0]=currTime;
@@ -288,31 +284,51 @@ void blethread::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteAr
         BLEReceiveData[8]=MAG_Y;
         BLEReceiveData[9]=MAG_Z;
 
-        if (mSaveFlag){
-            BLEReceiveDataSet.push_back(BLEReceiveData[0]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[1]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[2]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[3]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[4]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[5]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[6]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[7]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[8]);
-            BLEReceiveDataSet.push_back(BLEReceiveData[9]);
+        if (mLastTime != currTime){
+            emit updateGraph(BLEReceiveData);
+            if (mSaveFlag){
+                mBLEstorage.push_back(BLEReceiveData);
+            }
         }
-        emit updateGraph(BLEReceiveData);
+        mLastTime = currTime;
     }
 }
 
 void blethread::receiveSaveFlag(bool save_ble_flag){
     mutex.lock();
     mSaveFlag = save_ble_flag;
-    qDebug() << mSaveFlag;
     mutex.unlock();
+    if (mSaveFlag)
+        mfilename = QString("/home/skaegy/Data/EAR/%1_%2_%3.csv").arg(mSubjectName).arg(mActionName).arg(mIndexName);
+    else
+        emit startSaveCSV();
+
 }
 
 void blethread::receiveFileName(QString Subject, QString Action, QString Index){
     mSubjectName = Subject;
     mActionName = Action;
     mIndexName = Index;
+}
+
+void blethread::saveBLEData(){
+    QFile saveBLEfile(mfilename);
+    QTextStream stream(&saveBLEfile);
+    if(saveBLEfile.open(QFile::WriteOnly |QFile::Truncate))
+    {
+        for (QList<QVector<qint64>>::iterator it = mBLEstorage.begin(); it != mBLEstorage.end(); ++it){
+            if (it == mBLEstorage.begin()){
+                qDebug() << "Start writing data to ... " << mfilename;
+                stream << "Timestamp" << "\t" << "ACC_X" << "\t" << "ACC_Y" << "\t" << "ACC_Z" << "\t"
+                             << "GYR_X" << "\t" << "GYR_Y" << "\t" << "GYR_Z" << "\t"
+                             << "MAG_X" << "\t" << "MAG_Y" << "\t" << "MAG_Z" << "\n";
+            }
+            QVector<qint64> mBufData = *it;
+            stream << mBufData[0] << "\t" << mBufData[1] << "\t" << mBufData[2] << "\t" << mBufData[3] << "\t"
+                         << mBufData[4] << "\t" << mBufData[5] << "\t" << mBufData[6] << "\t"
+                         << mBufData[7] << "\t" << mBufData[8] << "\t" << mBufData[9] << "\n";
+        }
+    }
+    qDebug() << "Data has been saved::" << mBLEstorage.size() << " Frames";
+    saveBLEfile.close();
 }

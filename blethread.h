@@ -8,6 +8,9 @@
 #include <QVector>
 #include <QDateTime>
 #include <QListWidgetItem>
+#include <QFile>
+#include <QFileInfo>
+#include <QDebug>
 
 #include <QtBluetooth/qbluetoothaddress.h>
 #include <QtBluetooth/qbluetoothdevicediscoveryagent.h>
@@ -43,6 +46,7 @@ Q_SIGNALS:
     void resetGraph();
     void updateGraph(QVector<qint64> BLEdata);
     void sendItem(QListWidgetItem *item);
+    void startSaveCSV();
 
 public slots:
     // -- BLE device -- //
@@ -66,6 +70,7 @@ public slots:
     void updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteArray &value);
     void receiveSaveFlag(bool save_ble_flag);
     void receiveFileName(QString Subject, QString Action, QString Index);
+    void saveBLEData();
 
 protected:
     void run();
@@ -87,10 +92,10 @@ private:
     QLowEnergyCharacteristic m_IMUchar;
     bool m_deviceScanState;
 
-    //qint64 BLEReceiveData[10] = {0}; // Received data from BLE sensor
-    QList<qint64> BLEReceiveDataSet; // Received data (qint64) for save from BLE sensor
-    QList<QString> BLEReceiveDatas;  // Received data (QString) for save from BLE sensor
     QString mSubjectName, mActionName, mIndexName;
+    QString mfilename;
+    QList<QVector<qint64>> mBLEstorage;
+    qint64 mLastTime;
     bool mSaveFlag;
 
     QMutex mutex;
