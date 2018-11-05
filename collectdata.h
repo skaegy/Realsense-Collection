@@ -74,13 +74,18 @@ private slots:
     void on_Button_UDP_clicked();
     void on_Button_StopUDP_clicked();
 
+    void on_Text_subject_name_textChanged();
+    void on_Text_subject_action_textChanged();
+    void on_Text_subject_index_textChanged();
+    void on_checkPlotGraph_stateChanged(int arg1);
+
     // RGB-D
     void show_color_mat(cv::Mat &color_mat, qint64 timestamp);
     void show_depth_mat(cv::Mat &depth_mat, qint64 timestamp);
     void show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
 
     // BLE plot
-    void on_Button_ScanBLE_clicked();
+
     void init_BLE_graph();
     void show_BLE_graph(QVector<qint64> BLEdata);
     void reset_BLE_graph();
@@ -88,18 +93,13 @@ private slots:
     // BLE
     void itemActivated(QListWidgetItem *item);
     void receiveItem(QListWidgetItem *item);
+    void on_Button_ScanBLE_clicked();
+    void on_Button_QuitBLE_clicked();
 
-    void on_Text_subject_name_textChanged();
-    void on_Text_subject_action_textChanged();
-    void on_Text_subject_index_textChanged();
-
-    void on_checkPlotGraph_stateChanged(int arg1);
-
+    // SAVE&STOP ALL
     void on_Button_SAVEALL_clicked();
-
     void on_Button_SAVESTOPALL_clicked();
 
-    void on_Button_QuitBLE_clicked();
 
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);
@@ -109,8 +109,7 @@ private:
     // UI
     Ui::rsCollectData *ui;
     int InitIdx = 1;
-    bool mbShowGraph;
-
+    bool mbShowGraph = true;
 
     // Thread
     rsCaptureThread* rsCapture;
@@ -125,7 +124,7 @@ private:
     qint64 mLastColorTimeT = 0; qint64 mLastDepthTimeT = 0;
     uint mSumColorTime = 0;     uint mSumDepthTime = 0;
 
-    bool save_flag = false;
+    bool save_RGB_flag = false;
     // ---- BLE ---- //
     int save_BLE_cnt = 0;
     bool save_BLE_flag = false;

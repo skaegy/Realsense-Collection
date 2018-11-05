@@ -17,6 +17,7 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->Text_subject_name->setText("Hamlyn");
     ui->Text_subject_action->setText("NormalWalk");
     ui->Text_subject_index->setText("1");
+    ui->label_ConnectStatus->setText("DISCONNECTED");
 
     ui->Button_saveRGBD->setEnabled(false);
     ui->Button_stopSaveRGBD->setEnabled(false);
@@ -65,9 +66,11 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     ui->Button_openRSThread->setEnabled(true);
     ui->Button_saveRGBD->setEnabled(false);
     ui->Button_stopSaveRGBD->setEnabled(false);
+    ui->lable_color_fps->setText("0");
+    ui->lable_depth_fps->setText("0");
     rsCapture->stop();
     rsFilter->stop();
-    if (save_flag){
+    if (save_RGB_flag){
         rsSave->stop();
     }
 
@@ -89,7 +92,7 @@ void rsCollectData::on_Button_saveRGBD_clicked()
     ui->Text_subject_action->setEnabled(false);
     ui->Text_subject_index->setEnabled(false);
     rsSave = new rssavethread();
-    save_flag = true;
+    save_RGB_flag = true;
 
     // Emit subject & action names for saving
     connect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
@@ -115,7 +118,7 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     ui->Text_subject_action->setEnabled(true);
     ui->Text_subject_index->setEnabled(true);
     rsSave->stop();
-    save_flag = false;
+    save_RGB_flag = false;
 
     // ---- Emit rgb-d images for saving ---- //
     disconnect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
@@ -293,6 +296,24 @@ void rsCollectData::on_Button_stopSaveBLE_clicked()
     emit send_BLEsave_flag(save_BLE_flag);
 }
 
+void rsCollectData::receiveItem(QListWidgetItem *item){
+    ui->List_BLE->addItem(item);
+}
+
+void rsCollectData::itemActivated(QListWidgetItem *item){
+    QString text = item->text();
+
+    int index = text.indexOf(' ');
+    if (index == -1)
+        return;
+    qDebug() << "Connect to: " << text;
+    EARSensor->scanServices(text.left(index));
+}
+
+//=============================
+// BLE GRAPH
+//=============================
+
 void rsCollectData::init_BLE_graph(){
     // =========== ACC PLOT =========== //
     ui->customPlot_ACC->addGraph(); // blue line
@@ -365,11 +386,12 @@ void rsCollectData::init_BLE_graph(){
 }
 
 void rsCollectData::show_BLE_graph(QVector<qint64> BLEdata){
-
+    ui->label_ConnectStatus->setText("CONNECTED");
     if (BLEdata[0] > mLastEarTime){
         mSumEarTime = mSumEarTime + BLEdata[0] - mLastEarTime;
         save_BLE_cnt++;
         if (mSumEarTime > 1000){
+            ui->label_BLEfps->setText(QString::number(save_BLE_cnt));
             mSumEarTime = 0;
             save_BLE_cnt = 0;
         }
@@ -402,6 +424,8 @@ void rsCollectData::show_BLE_graph(QVector<qint64> BLEdata){
 }
 
 void rsCollectData::reset_BLE_graph(){
+    ui->label_ConnectStatus->setText("DISCONNECTED");
+    ui->label_BLEfps->setText("0");
     key_ACC = 1; key_GYR = 1; key_MAG = 1;
 
     ui->customPlot_ACC->graph(0)->data()->clear();
@@ -419,22 +443,8 @@ void rsCollectData::reset_BLE_graph(){
 }
 
 //=============================
-// BLE process slot
+// UI STATUS CHANGED
 //=============================
-void rsCollectData::receiveItem(QListWidgetItem *item){
-    ui->List_BLE->addItem(item);
-}
-
-void rsCollectData::itemActivated(QListWidgetItem *item){
-    QString text = item->text();
-
-    int index = text.indexOf(' ');
-    if (index == -1)
-        return;
-    qDebug() << "Connect to: " << text;
-    EARSensor->scanServices(text.left(index));
-}
-
 
 void rsCollectData::on_Text_subject_name_textChanged()
 {

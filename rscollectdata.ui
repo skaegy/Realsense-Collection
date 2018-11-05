@@ -508,10 +508,10 @@ background-color: rgb(136, 138, 133);</string>
    <widget class="QLabel" name="label_ConnectStatus">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>196</x>
       <y>0</y>
-      <width>67</width>
-      <height>17</height>
+      <width>111</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
