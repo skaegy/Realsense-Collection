@@ -47,7 +47,7 @@ private:
     struct sockaddr_in addr;
     struct sockaddr_in src;
     struct timeval tv;
-    const unsigned long buf_size = 128;
+
     int sockfd;
     QString mSubjectName, mActionName, mIndexName;
 };

@@ -24,7 +24,7 @@ void udpthread::startSync(){
     }
 
     // ========= set address and port =========//
-   socklen_t          addr_len=sizeof(addr);
+   socklen_t addr_len=sizeof(addr);
    memset(&addr, 0, sizeof(addr));
    addr.sin_family = AF_INET;       // Use IPV4
    addr.sin_port   = htons(PORT_SCAN);    //
@@ -32,7 +32,7 @@ void udpthread::startSync(){
 
    // ========= set listen interval =========== //
    tv.tv_sec  = 0;
-   tv.tv_usec = 20*1000;  // millisecond to usecond
+   tv.tv_usec = PORT_MS*1000;  // millisecond to usecond
    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&tv), sizeof(struct timeval));
 
    //========== Bind ports. ===========//
@@ -48,7 +48,7 @@ void udpthread::startSync(){
 
 void udpthread::run(){
     char buffer[128];
-    memset(buffer, 0, buf_size);
+    memset(buffer, 0, BUF_SIZE);
     qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
     QString filename = QString("/home/skaegy/Data/VICON/time_%1.txt").arg(currTime);
     QFile timefile(filename);
@@ -56,16 +56,16 @@ void udpthread::run(){
     while(!abort){
         socklen_t src_len = sizeof(src);
         memset(&src, 0, sizeof(src));
-        int sz = recvfrom(sockfd, buffer, buf_size, 0, reinterpret_cast<sockaddr*>(&src), &src_len);
-        usleep(1000);
+        int sz = recvfrom(sockfd, buffer, BUF_SIZE, 0, reinterpret_cast<sockaddr*>(&src), &src_len);
         if (sz > 0){
             // Timestamp of the received signal
             qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-            qDebug() << "Received" << currTime;
+            qDebug() << "[UDP]Received SIGNAL from VICON" << currTime;
 
             QTextStream timestream(&timefile);
             timestream << mSubjectName << " " << mActionName << mIndexName << " " << currTime << endl;
         }
+        usleep(100);
     }
 }
 
