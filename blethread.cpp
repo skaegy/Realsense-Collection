@@ -265,11 +265,11 @@ void blethread::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteAr
         int GYR_Z =  QString(gz.toHex()).toInt(&bStatus,16);
         if (GYR_Z > 32768) GYR_Z = GYR_Z - 65536;
         int MAG_X =  QString(mx.toHex()).toInt(&bStatus,16);
-        if (MAG_X > 32768) MAG_X = MAG_X - 65536;
+        if (MAG_X > 32768) MAG_X = std::abs(MAG_X - 65536);
         int MAG_Y =  QString(my.toHex()).toInt(&bStatus,16);
-        if (MAG_Y > 32768) MAG_Y = MAG_Y - 65536;
+        if (MAG_Y > 32768) MAG_Y = std::abs(MAG_Y - 65536);
         int MAG_Z =  QString(mz.toHex()).toInt(&bStatus,16);
-        if (MAG_Z > 32768) MAG_Z = MAG_Z - 65536;
+        if (MAG_Z > 32768) MAG_Z = std::abs(MAG_Z - 65536);
 
 
         QVector<qint64> BLEReceiveData(10);
