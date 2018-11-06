@@ -287,7 +287,9 @@ void blethread::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteAr
         if (mLastTime != currTime){
             emit updateGraph(BLEReceiveData);
             if (mSaveFlag){
+                mutex.lock();
                 mBLEstorage.push_back(BLEReceiveData);
+                mutex.unlock();
             }
         }
         mLastTime = currTime;
@@ -330,5 +332,6 @@ void blethread::saveBLEData(){
         }
     }
     qDebug() << "Data has been saved::" << mBLEstorage.size() << " Frames";
+    mBLEstorage.clear();
     saveBLEfile.close();
 }

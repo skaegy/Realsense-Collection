@@ -127,8 +127,8 @@ void rssavethread::run(){
             mFrameTobeSaved = mlColor.size();
             SaveFrameCnt++;
             mbSavedFinish = mFrameTobeSaved > 0 ? false : true;
-            if (mbSavedFinish)
-                qDebug() << "Frames are all saved ....";
+            //if (mbSavedFinish)
+                //qDebug() << "Frames are all saved ....";
             //qDebug() << "Saved frames::" << SaveFrameCnt << "---" << "Saved FINISH??" << mbSavedFinish;
         }
     }
