@@ -25,22 +25,29 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x000000
 
 SOURCES += \
         main.cpp \
-        rscollectdata.cpp \
         rscapturethread.cpp \
     rssavethread.cpp \
     characteristicinfo.cpp \
     deviceinfo.cpp \
     serviceinfo.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    udpthread.cpp \
+    rsfilterthread.cpp \
+    collectdata.cpp \
+    blethread.cpp
 
 HEADERS += \
-        rscollectdata.h \
     rscapturethread.h \
     rssavethread.h \
     characteristicinfo.h \
     deviceinfo.h \
     serviceinfo.h \
-    qcustomplot.h
+    qcustomplot.h \
+    udpthread.h \
+    settings.h \
+    rsfilterthread.h \
+    collectdata.h \
+    blethread.h
 
 FORMS += \
         rscollectdata.ui
