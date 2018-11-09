@@ -9,13 +9,7 @@ rssavethread::rssavethread(QObject* parent)
     abort = false;
     mbSavedFinish = false;
     mutex.unlock();
-    mlColor.clear();
-    mlDepth.clear();
-    mlImageName.clear();
-    mlColorName.clear();
-    mlDepthName.clear();
 
-    start();
 }
 
 rssavethread::~rssavethread()
@@ -33,62 +27,19 @@ void rssavethread::stop(){
     mutex.unlock();
 }
 
+void rssavethread::startSave(){
+    mlColor.clear();
+    mlDepth.clear();
+    mlImageName.clear();
+    mlColorName.clear();
+    mlDepthName.clear();
+
+    start();
+}
+
 void rssavethread::run(){
     while (!abort || !mbSavedFinish) //While application is running
     {
-        /*
-        if (mlColor.size()>0 && mlColorName.size()>0){
-
-            QList<cv::Mat>::iterator itImColor = mlColor.begin();
-            QList<std::string>::iterator itName = mlColorName.begin();
-            QFileInfo check_color(mColor_path);
-            if (!check_color.exists())
-            {
-                qDebug() << "Mkdir color::" << mColor_path;
-                QDir color_dir = QDir::root();
-                color_dir.mkpath(mColor_path);
-            }
-
-            std::string Image_name = *itName;
-            cv::Mat BufColor = *itImColor;
-
-            std::string Color_names = mColor_path.toStdString();
-            imwrite(Color_names + Image_name, BufColor);
-
-            mutex.lock();
-            mlColor.pop_front();
-            mlColorName.pop_front();
-            mutex.unlock();
-
-            SaveColorCnt++;
-            qDebug() << "Saved Images::" << SaveColorCnt;
-        }
-
-        if (mlDepth.size()>0 && mlDepthName.size()>0){
-
-            QList<cv::Mat>::iterator itImDepth = mlDepth.begin();
-            QList<std::string>::iterator itName = mlDepthName.begin();
-            QFileInfo check_depth(mDepth_path);
-            if (!check_depth.exists())
-            {
-                qDebug() << "Mkdir depth::" << mDepth_path;
-                QDir depth_dir = QDir::root();
-                depth_dir.mkpath(mDepth_path);
-            }
-
-            std::string Image_name = *itName;
-            cv::Mat BufDepth = *itImDepth;
-
-            std::string Depth_names = mDepth_path.toStdString();
-            imwrite(Depth_names + Image_name, BufDepth);
-
-            mutex.lock();
-            mlDepth.pop_front();
-            mlDepthName.pop_front();
-            mutex.unlock();
-        }
-        */
-
         usleep(100);
         if ((mlColor.size()>0) && (mlDepth.size()>0) && (mlImageName.size()>0)){
             QList<cv::Mat>::iterator itImColor = mlColor.begin();
@@ -124,12 +75,14 @@ void rssavethread::run(){
             mlDepth.pop_front();
             mlImageName.pop_front();
             mutex.unlock();
-            mFrameTobeSaved = mlColor.size();
+            mFrameTobeSaved = mlDepth.size() > mlColor.size() ? mlDepth.size() : mlColor.size();
             SaveFrameCnt++;
             mbSavedFinish = mFrameTobeSaved > 0 ? false : true;
-            //if (mbSavedFinish)
-                //qDebug() << "Frames are all saved ....";
-            //qDebug() << "Saved frames::" << SaveFrameCnt << "---" << "Saved FINISH??" << mbSavedFinish;
+            if (abort && mbSavedFinish){
+                qDebug() << "Frames " << SaveFrameCnt << " are saved";
+                SaveFrameCnt = 0;
+            }
+
         }
     }
 }

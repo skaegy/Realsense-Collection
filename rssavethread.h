@@ -22,6 +22,7 @@ public:
     ~rssavethread();
     void stop();
     bool abort;
+    void startSave();
 
 public slots:
     void save_color_mat(cv::Mat &color_mat, qint64 timestamp);

@@ -13,7 +13,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <thread>
-
 #include "settings.h"
 
 namespace Ui {
@@ -21,6 +20,7 @@ class rsCollectData;
 class rsCaptureThread;
 class rssavethread;
 class udpthread;
+class blethread;
 class CharacteristicInfo;
 class DeviceInfo;
 class ServiceInfo;
@@ -35,6 +35,12 @@ public:
     void stop();
     void startSync();
     bool abort;
+
+    void setUI(Ui::rsCollectData *ui);
+
+Q_SIGNALS:
+    void udp4startALL();
+    void udp4stopALL();
 
 public slots:
     void receive_Subject_Action(QString Subject, QString Action, QString Index);

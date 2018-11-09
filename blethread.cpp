@@ -301,7 +301,7 @@ void blethread::receiveSaveFlag(bool save_ble_flag){
     mSaveFlag = save_ble_flag;
     mutex.unlock();
     if (mSaveFlag)
-        mfilename = QString("/home/skaegy/Data/EAR/%1_%2_%3.csv").arg(mSubjectName).arg(mActionName).arg(mIndexName);
+        mfilename = QString("/home/skaegy/Data/EAR/%1_%2%3.csv").arg(mSubjectName).arg(mActionName).arg(mIndexName);
     else
         emit startSaveCSV();
 

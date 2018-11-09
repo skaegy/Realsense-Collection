@@ -599,6 +599,32 @@ background-color: rgb(136, 138, 133);</string>
      <string>Port=8888</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_IPname">
+    <property name="geometry">
+     <rect>
+      <x>121</x>
+      <y>2</y>
+      <width>61</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Local IP:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_IP">
+    <property name="geometry">
+     <rect>
+      <x>186</x>
+      <y>-1</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QLabel" name="label_9">
    <property name="geometry">

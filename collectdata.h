@@ -16,6 +16,8 @@
 #include <QPainter>
 #include <QVarLengthArray>
 #include <QList>
+#include <QtNetwork/QHostAddress>
+#include <QtNetwork/QNetworkInterface>
 
 #include <QtBluetooth/qbluetoothaddress.h>
 #include <QtBluetooth/qbluetoothdevicediscoveryagent.h>
@@ -40,17 +42,18 @@
 #include "udpthread.h"
 #include "blethread.h"
 
-/*
+
 namespace Ui {
 class rsCollectData;
 class rsCaptureThread;
 class rssavethread;
 class udpthread;
+class blethread;
 class CharacteristicInfo;
 class DeviceInfo;
 class ServiceInfo;
 }
-*/
+
 
 class rsCollectData : public QWidget
 {

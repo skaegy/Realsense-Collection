@@ -9,27 +9,32 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui(new Ui::rsCollectData)
 {
     ui->setupUi(this);
+    // ======= Initialization ======= //
 
+    // --- Register type
     qRegisterMetaType< cv::Mat >("cv::Mat");
     qRegisterMetaType< cv::Mat >("cv::Mat&");
     qRegisterMetaType< rs2::frame >("rs2::frame");
 
+    // --- UI->TEXT
     ui->Text_subject_name->setText("Hamlyn");
     ui->Text_subject_action->setText("NormalWalk");
     ui->Text_subject_index->setText("1");
     ui->label_ConnectStatus->setText("DISCONNECTED");
 
+    // --- UI->BUTTON
     ui->Button_saveRGBD->setEnabled(false);
     ui->Button_stopSaveRGBD->setEnabled(false);
-
     ui->Button_startSaveBLE->setEnabled(false);
     ui->Button_stopSaveBLE->setEnabled(false);
     ui->Button_StopUDP->setEnabled(false);
-
     ui->Button_QuitBLE->setEnabled(false);
     ui->Button_ClearBLE->setEnabled(false);
 
+    // --- Connect signal and slot
     connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),this, SLOT(itemActivated(QListWidgetItem*)));
+
+    //
     init_BLE_graph();
 }
 
@@ -45,18 +50,24 @@ rsCollectData::~rsCollectData()
 
 void rsCollectData::on_Button_openRSThread_clicked()
 {
+    // --- UI Status
     ui->Button_saveRGBD->setEnabled(true);
     ui->Button_closeRSThread->setEnabled(true);
     ui->Button_openRSThread->setEnabled(false);
+    ui->lable_color_fps->setText("0");
+    ui->lable_depth_fps->setText("0");
+
+    // --- Create and Start thread
     rsCapture = new rsCaptureThread();
     rsCapture->startCollect();
     rsFilter = new rsFilterThread();
     rsFilter->startFilter();
 
-    connect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
-    connect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
-    //connect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), this, SLOT(show_color_mat(cv::Mat&,qint64)));
-    //connect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), this, SLOT(show_depth_mat(cv::Mat&,qint64)));
+    // --- Connect signals and slots
+    connect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
+    connect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
+    //connect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
+    //connect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
     //connect(rsCapture, SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this, SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
 
@@ -69,13 +80,22 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     ui->lable_color_fps->setText("0");
     ui->lable_depth_fps->setText("0");
     rsCapture->stop();
+    rsCapture->quit();
     rsFilter->stop();
+    rsFilter->quit();
+
     if (save_RGB_flag){
         rsSave->stop();
+        rsSave->quit();
+        disconnect(this, &rsCollectData::send_RGBD_name, rsSave, &rssavethread::receive_RGBD_name);
+        disconnect(rsFilter, &rsFilterThread::sendRGBDFiltered, rsSave, &rssavethread::save_RGBD_mat);
     }
 
-    disconnect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
-    disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
+    disconnect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
+    disconnect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
+
+    //disconnect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
+    //disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
     //disconnect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), this, SLOT(show_color_mat(cv::Mat&,qint64)));
     //disconnect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), this, SLOT(show_depth_mat(cv::Mat&,qint64)));
     //disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this,SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
@@ -86,16 +106,21 @@ void rsCollectData::on_Button_closeRSThread_clicked()
 //=============================
 void rsCollectData::on_Button_saveRGBD_clicked()
 {
+    // --- UI Status
     ui->Button_stopSaveRGBD->setEnabled(true);
     ui->Button_saveRGBD->setEnabled(false);
     ui->Text_subject_name->setEnabled(false);
     ui->Text_subject_action->setEnabled(false);
     ui->Text_subject_index->setEnabled(false);
+
+    // --- Create save thread
     rsSave = new rssavethread();
+    rsSave->startSave();
     save_RGB_flag = true;
 
     // Emit subject & action names for saving
-    connect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
+    connect(this, &rsCollectData::send_RGBD_name, rsSave, &rssavethread::receive_RGBD_name);
+    //connect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
     QString Index = ui->Text_subject_index->toPlainText();
@@ -103,9 +128,8 @@ void rsCollectData::on_Button_saveRGBD_clicked()
 
     // ---- Emit rgb-d images for saving ---- //
     // RS_FILTER & RSSAVE
-    connect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), rsSave, SLOT(save_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
-    //connect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_color_mat(cv::Mat&,qint64)));
-    //connect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_depth_mat(cv::Mat&,qint64)));
+    connect(rsFilter, &rsFilterThread::sendRGBDFiltered, rsSave, &rssavethread::save_RGBD_mat);
+    //connect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), rsSave, SLOT(save_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
     // RS_CAPTURE THREAD & RS_SAVE THREAD
     //connect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
@@ -118,14 +142,15 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     ui->Text_subject_action->setEnabled(true);
     ui->Text_subject_index->setEnabled(true);
     rsSave->stop();
+    rsSave->quit();
     save_RGB_flag = false;
 
     // ---- Emit rgb-d images for saving ---- //
-    disconnect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
+    disconnect(this, &rsCollectData::send_RGBD_name, rsSave, &rssavethread::receive_RGBD_name);
+    //disconnect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), rsSave, SLOT(receive_RGBD_name(QString,QString, QString)));
     // RS_FILTER & RSSAVE
-    disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), rsSave, SLOT(save_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
-    //disconnect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_color_mat(cv::Mat&,qint64)));
-    //disconnect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), rsSave, SLOT(save_depth_mat(cv::Mat&,qint64)));
+    disconnect(rsFilter, &rsFilterThread::sendRGBDFiltered, rsSave, &rssavethread::save_RGBD_mat);
+    //disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), rsSave, SLOT(save_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
     // RS_CAPTURE THREAD & RS_SAVE THREAD
     //disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
 }
@@ -223,11 +248,20 @@ void rsCollectData::on_Button_UDP_clicked()
     udpSync = new udpthread();
     udpSync->startSync();
 
-    connect(this,SIGNAL(send_RGBD_name(QString, QString, QString)), udpSync, SLOT(receive_Subject_Action(QString,QString,QString)));
+    connect(this,&rsCollectData::send_RGBD_name,udpSync,&udpthread::receive_Subject_Action);
+    connect(udpSync,&udpthread::udp4startALL,this,&rsCollectData::on_Button_SAVEALL_clicked);
+    connect(udpSync,&udpthread::udp4stopALL,this,&rsCollectData::on_Button_SAVESTOPALL_clicked);
+
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
     QString Index = ui->Text_subject_index->toPlainText();
     emit send_RGBD_name(Subject, Action, Index);
+
+    // Show local IP address
+    foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
+            ui->label_IP->setText(QString(address.toString()));
+    }
 }
 
 void rsCollectData::on_Button_StopUDP_clicked()
@@ -235,6 +269,11 @@ void rsCollectData::on_Button_StopUDP_clicked()
     ui->Button_UDP->setEnabled(true);
     ui->Button_StopUDP->setEnabled(false);
     udpSync->stop();
+    udpSync->quit();
+    qDebug() << "UDP is stop now!";
+    disconnect(this,&rsCollectData::send_RGBD_name,udpSync,&udpthread::receive_Subject_Action);
+    disconnect(udpSync,&udpthread::udp4startALL,this,&rsCollectData::on_Button_SAVEALL_clicked);
+    disconnect(udpSync,&udpthread::udp4stopALL,this,&rsCollectData::on_Button_SAVESTOPALL_clicked);
 }
 
 
@@ -243,29 +282,43 @@ void rsCollectData::on_Button_StopUDP_clicked()
 //=============================
 void rsCollectData::on_Button_ScanBLE_clicked()
 {
+    // --- UI status
     ui->Button_ScanBLE->setEnabled(false);
     ui->Button_QuitBLE->setEnabled(true);
     ui->Button_ClearBLE->setEnabled(true);
     ui->Button_startSaveBLE->setEnabled(true);
     ui->Button_stopSaveBLE->setEnabled(false);
 
+    // --- Create blethread
     EARSensor = new blethread();
-    connect(EARSensor, SIGNAL(sendItem(QListWidgetItem*)), this, SLOT(receiveItem(QListWidgetItem*)));
-    connect(this, SIGNAL(send_RGBD_name(QString, QString, QString)), EARSensor, SLOT(receiveFileName(QString, QString, QString)));
-    connect(ui->Button_QuitBLE,SIGNAL(clicked()), EARSensor, SLOT(disconnectFromDevice()) );
-    connect(EARSensor, SIGNAL(resetGraph()), this, SLOT(reset_BLE_graph()));
-    connect(EARSensor,SIGNAL(updateGraph(QVector<qint64>)),this, SLOT(show_BLE_graph(QVector<qint64>)));
-    connect(this, SIGNAL(send_BLEsave_flag(bool)), EARSensor, SLOT(receiveSaveFlag(bool)));
 
+    // --- Connect all signals and slots related to BLE
+    connect(this, &rsCollectData::send_RGBD_name,    EARSensor, &blethread::receiveFileName);
+    connect(this, &rsCollectData::send_BLEsave_flag, EARSensor, &blethread::receiveSaveFlag);
+    connect(ui->Button_QuitBLE,SIGNAL(clicked()), EARSensor, SLOT(disconnectFromDevice()));
+    connect(EARSensor, &blethread::sendItem,   this, &rsCollectData::receiveItem);
+    connect(EARSensor, &blethread::resetGraph, this, &rsCollectData::reset_BLE_graph);
+    connect(EARSensor, &blethread::updateGraph, this, &rsCollectData::show_BLE_graph);
+
+    //connect(EARSensor, SIGNAL(sendItem(QListWidgetItem*)), this, SLOT(receiveItem(QListWidgetItem*)));
+    //connect(this, SIGNAL(send_RGBD_name(QString, QString, QString)), EARSensor, SLOT(receiveFileName(QString, QString, QString)));
+    //connect(ui->Button_QuitBLE,SIGNAL(clicked()), EARSensor, SLOT(disconnectFromDevice()) );
+    //connect(EARSensor, SIGNAL(resetGraph()), this, SLOT(reset_BLE_graph()));
+    //connect(EARSensor,SIGNAL(updateGraph(QVector<qint64>)),this, SLOT(show_BLE_graph(QVector<qint64>)));
+    //connect(this, SIGNAL(send_BLEsave_flag(bool)), EARSensor, SLOT(receiveSaveFlag(bool)));
+
+    // --- Emit name
     QString Subject = ui->Text_subject_name->toPlainText();
     QString Action = ui->Text_subject_action->toPlainText();
     QString Index = ui->Text_subject_index->toPlainText();
     emit send_RGBD_name(Subject, Action, Index);
+
+    // --- Start BLE scan
     EARSensor->startDeviceDiscovery();
 }
 
 void rsCollectData::on_Button_QuitBLE_clicked()
-{
+{ 
     ui->Button_ScanBLE->setEnabled(true);
 }
 
