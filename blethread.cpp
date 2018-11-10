@@ -238,39 +238,46 @@ void blethread::updateIMUvalue(const QLowEnergyCharacteristic &ch, const QByteAr
     if (ch.uuid() == QBluetoothUuid(IMU_uuid)) {
         qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
 
-        int start_idx = 2; int byteL = 2;
+        /*
+        VALUE = 19 (0-18) BYTES
+        BYTE(0) = 0x00 - Start idx
+        BYTE(1, 3, 5, 7, 9, 11) = 0xFF
+        AX = Int16(BYTE(2)BYTE(1))
+        AY = Int16(BYTE(4)BYTE(3))
+        etc.
+        */
 
-        QByteArray ax = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray ay = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray az = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray gx = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray gy = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray gz = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray mx = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray my = value.mid(start_idx,byteL); start_idx = start_idx+byteL;
-        QByteArray mz = value.right(2);
+        QString ax = QString(value.mid(2,1).toHex())+QString(value.mid(1,1).toHex());
+        QString ay = QString(value.mid(4,1).toHex())+QString(value.mid(3,1).toHex());
+        QString az = QString(value.mid(6,1).toHex())+QString(value.mid(5,1).toHex());
+        QString gx = QString(value.mid(8,1).toHex())+QString(value.mid(7,1).toHex());
+        QString gy = QString(value.mid(10,1).toHex())+QString(value.mid(9,1).toHex());
+        QString gz = QString(value.mid(12,1).toHex())+QString(value.mid(11,1).toHex());
+        QString mx = QString(value.mid(14,1).toHex())+QString(value.mid(13,1).toHex());
+        QString my = QString(value.mid(16,1).toHex())+QString(value.mid(15,1).toHex());
+        QString mz = QString(value.mid(18,1).toHex())+QString(value.mid(17,1).toHex());
 
         bool bStatus = false;
-        // ACC, GYR, MAG of IMU
-        int ACC_X =  QString(ax.toHex()).toInt(&bStatus,16);
-        if (ACC_X > 32768) ACC_X = ACC_X - 65536;
-        int ACC_Y =  QString(ay.toHex()).toInt(&bStatus,16);
-        if (ACC_Y > 32768) ACC_Y = ACC_Y - 65536;
-        int ACC_Z =  QString(az.toHex()).toInt(&bStatus,16);
-        if (ACC_Z > 32768) ACC_Z = ACC_Z - 65536;
-        int GYR_X =  QString(gx.toHex()).toInt(&bStatus,16);
-        if (GYR_X > 32768) GYR_X = GYR_X - 65536;
-        int GYR_Y =  QString(gy.toHex()).toInt(&bStatus,16);
-        if (GYR_Y > 32768) GYR_Y = GYR_Y - 65536;
-        int GYR_Z =  QString(gz.toHex()).toInt(&bStatus,16);
-        if (GYR_Z > 32768) GYR_Z = GYR_Z - 65536;
-        int MAG_X =  QString(mx.toHex()).toInt(&bStatus,16);
-        if (MAG_X > 32768) MAG_X = std::abs(MAG_X - 65536);
-        int MAG_Y =  QString(my.toHex()).toInt(&bStatus,16);
-        if (MAG_Y > 32768) MAG_Y = std::abs(MAG_Y - 65536);
-        int MAG_Z =  QString(mz.toHex()).toInt(&bStatus,16);
-        if (MAG_Z > 32768) MAG_Z = std::abs(MAG_Z - 65536);
 
+        // ACC, GYR, MAG of IMU
+        int ACC_X =  ax.toInt(&bStatus,16);
+        if (ACC_X > 32768) ACC_X = ACC_X - 65536;
+        int ACC_Y =  ay.toInt(&bStatus,16);
+        if (ACC_Y > 32768) ACC_Y = ACC_Y - 65536;
+        int ACC_Z =  az.toInt(&bStatus,16);
+        if (ACC_Z > 32768) ACC_Z = ACC_Z - 65536;
+        int GYR_X =  gx.toInt(&bStatus,16);
+        if (GYR_X > 32768) GYR_X = GYR_X - 65536;
+        int GYR_Y =  gy.toInt(&bStatus,16);
+        if (GYR_Y > 32768) GYR_Y = GYR_Y - 65536;
+        int GYR_Z =  gz.toInt(&bStatus,16);
+        if (GYR_Z > 32768) GYR_Z = GYR_Z - 65536;
+        int MAG_X =  mx.toInt(&bStatus,16);
+        if (MAG_X > 32768) MAG_X = std::abs(MAG_X - 65536);
+        int MAG_Y =  my.toInt(&bStatus,16);
+        if (MAG_Y > 32768) MAG_Y = std::abs(MAG_Y - 65536);
+        int MAG_Z =  mz.toInt(&bStatus,16);
+        if (MAG_Z > 32768) MAG_Z = std::abs(MAG_Z - 65536);
 
         QVector<qint64> BLEReceiveData(10);
         BLEReceiveData[0]=currTime;
@@ -300,11 +307,12 @@ void blethread::receiveSaveFlag(bool save_ble_flag){
     mutex.lock();
     mSaveFlag = save_ble_flag;
     mutex.unlock();
-    if (mSaveFlag)
+    if (mSaveFlag){
         mfilename = QString("/home/skaegy/Data/EAR/%1_%2%3.csv").arg(mSubjectName).arg(mActionName).arg(mIndexName);
-    else
-        emit startSaveCSV();
-
+    }
+    else{
+        emit startSaveCSV(); // Save ble data while stop save is clicked
+    }
 }
 
 void blethread::receiveFileName(QString Subject, QString Action, QString Index){
@@ -320,18 +328,18 @@ void blethread::saveBLEData(){
     {
         for (QList<QVector<qint64>>::iterator it = mBLEstorage.begin(); it != mBLEstorage.end(); ++it){
             if (it == mBLEstorage.begin()){
-                qDebug() << "Start writing data to ... " << mfilename;
+                qDebug() << "Writing e-AR sensor data to ... " << mfilename;
                 stream << "Timestamp" << "\t" << "ACC_X" << "\t" << "ACC_Y" << "\t" << "ACC_Z" << "\t"
                              << "GYR_X" << "\t" << "GYR_Y" << "\t" << "GYR_Z" << "\t"
-                             << "MAG_X" << "\t" << "MAG_Y" << "\t" << "MAG_Z" << "\n";
+                             << "MAG_X" << "\t" << "MAG_Y" << "\t" << "MAG_Z";
             }
             QVector<qint64> mBufData = *it;
-            stream << mBufData[0] << "\t" << mBufData[1] << "\t" << mBufData[2] << "\t" << mBufData[3] << "\t"
+            stream << "\n" << mBufData[0] << "\t" << mBufData[1] << "\t" << mBufData[2] << "\t" << mBufData[3] << "\t"
                          << mBufData[4] << "\t" << mBufData[5] << "\t" << mBufData[6] << "\t"
-                         << mBufData[7] << "\t" << mBufData[8] << "\t" << mBufData[9] << "\n";
+                         << mBufData[7] << "\t" << mBufData[8] << "\t" << mBufData[9];
         }
     }
-    qDebug() << "Data has been saved::" << mBLEstorage.size() << " Frames";
+    qDebug() << "[EAR] " << mBLEstorage.size() << " Frames has been saved";
     mBLEstorage.clear();
     saveBLEfile.close();
 }

@@ -79,10 +79,9 @@ void rssavethread::run(){
             SaveFrameCnt++;
             mbSavedFinish = mFrameTobeSaved > 0 ? false : true;
             if (abort && mbSavedFinish){
-                qDebug() << "Frames " << SaveFrameCnt << " are saved";
+                qDebug() << "[RGBD]Frames " << SaveFrameCnt << " are saved";
                 SaveFrameCnt = 0;
             }
-
         }
     }
 }

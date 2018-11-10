@@ -53,6 +53,7 @@ void udpthread::run(){
     QString filename = QString("/home/skaegy/Data/VICON/time_%1.txt").arg(currTime);
     QFile timefile(filename);
     timefile.open(QIODevice::ReadWrite);
+    QTextStream timestream(&timefile);
     while(!abort){
         socklen_t src_len = sizeof(src);
         memset(&src, 0, sizeof(src));
@@ -62,20 +63,18 @@ void udpthread::run(){
             // '1' -- start all;  '2' -- stop all
             char receiveCh = buffer[0];
             int receiveKey = receiveCh - '0';
-            qDebug() << "Received" << buffer[0];
-            qDebug() << "Received key is " << receiveKey;
             if (receiveKey==1 || receiveKey==2){
                 // Timestamp of the received signal
                 qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-                qDebug() << "[UDP]Received SIGNAL from VICON" << currTime;
+                qDebug() << "[UDP]Received SIGNAL from VICON" << currTime << " Received key is " << receiveKey;
 
-                QTextStream timestream(&timefile);
-                timestream << mSubjectName << " " << mActionName << mIndexName << " " << currTime << endl;
                 if (receiveKey == 1){
                     emit udp4startALL();
+                    timestream << "START " << mSubjectName << " " << mActionName << mIndexName << " " << currTime << endl;
                 }
                 else if(receiveKey == 2){
                     emit udp4stopALL();
+                    timestream << "STOP " << mSubjectName << " " << mActionName << mIndexName << " " << currTime << endl;
                 }
             }
         }

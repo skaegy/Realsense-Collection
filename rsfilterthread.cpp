@@ -48,10 +48,10 @@ void rsFilterThread::run(){
 
     while(!abort){
         if (mlColorFrame.size()>0 && mlDepthFrame.size()>0 && mlTimestamp.size()>0){
+            mutex.lock();
             frame color_frame = mlColorFrame.back();
             frame depth_frame = mlDepthFrame.back();
             qint64 timestamp = mlTimestamp.back();
-            mutex.lock();
             mlColorFrame.pop_back();
             mlDepthFrame.pop_back();
             mlTimestamp.pop_back();
@@ -109,6 +109,7 @@ void rsFilterThread::receiveDepthFrame(rs2::frame DepthFrame){
 }
 
 void rsFilterThread::receiveRGBDFrame(rs2::frame ColorFrame, rs2::frame DepthFrame, qint64 timestamp){
+    mutex.lock();
     mColorFrame = ColorFrame;
     mlColorFrame.push_front(mColorFrame);
     if (mlColorFrame.size()>CAPACITY){
@@ -123,4 +124,5 @@ void rsFilterThread::receiveRGBDFrame(rs2::frame ColorFrame, rs2::frame DepthFra
     if (mlTimestamp.size()>CAPACITY){
         mlTimestamp.pop_back();
     }
+    mutex.unlock();
 }

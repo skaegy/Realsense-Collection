@@ -20,7 +20,7 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->Text_subject_name->setText("Hamlyn");
     ui->Text_subject_action->setText("NormalWalk");
     ui->Text_subject_index->setText("1");
-    ui->label_ConnectStatus->setText("DISCONNECTED");
+    ui->label_ConnectStatus->setText("<font color='red'>DISCONNECTED</font>");
 
     // --- UI->BUTTON
     ui->Button_saveRGBD->setEnabled(false);
@@ -79,17 +79,6 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     ui->Button_stopSaveRGBD->setEnabled(false);
     ui->lable_color_fps->setText("0");
     ui->lable_depth_fps->setText("0");
-    rsCapture->stop();
-    rsCapture->quit();
-    rsFilter->stop();
-    rsFilter->quit();
-
-    if (save_RGB_flag){
-        rsSave->stop();
-        rsSave->quit();
-        disconnect(this, &rsCollectData::send_RGBD_name, rsSave, &rssavethread::receive_RGBD_name);
-        disconnect(rsFilter, &rsFilterThread::sendRGBDFiltered, rsSave, &rssavethread::save_RGBD_mat);
-    }
 
     disconnect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
     disconnect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
@@ -99,6 +88,21 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     //disconnect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), this, SLOT(show_color_mat(cv::Mat&,qint64)));
     //disconnect(rsFilter,SIGNAL(sendDepthFiltered(cv::Mat&, qint64)), this, SLOT(show_depth_mat(cv::Mat&,qint64)));
     //disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this,SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
+
+    rsCapture->stop();
+    rsCapture->quit();
+    rsFilter->stop();
+    rsFilter->quit();
+
+    if (save_RGB_flag){
+        disconnect(this, &rsCollectData::send_RGBD_name, rsSave, &rssavethread::receive_RGBD_name);
+        disconnect(rsFilter, &rsFilterThread::sendRGBDFiltered, rsSave, &rssavethread::save_RGBD_mat);
+
+        rsSave->stop();
+        rsSave->quit();
+    }
+
+
 }
 
 //=============================
@@ -141,9 +145,6 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     ui->Text_subject_name->setEnabled(true);
     ui->Text_subject_action->setEnabled(true);
     ui->Text_subject_index->setEnabled(true);
-    rsSave->stop();
-    rsSave->quit();
-    save_RGB_flag = false;
 
     // ---- Emit rgb-d images for saving ---- //
     disconnect(this, &rsCollectData::send_RGBD_name, rsSave, &rssavethread::receive_RGBD_name);
@@ -153,6 +154,10 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     //disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), rsSave, SLOT(save_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
     // RS_CAPTURE THREAD & RS_SAVE THREAD
     //disconnect(rsCapture,SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), rsSave,SLOT(save_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
+
+    rsSave->stop();
+    rsSave->quit();
+    save_RGB_flag = false;
 }
 
 //=============================
@@ -268,12 +273,13 @@ void rsCollectData::on_Button_StopUDP_clicked()
 {
     ui->Button_UDP->setEnabled(true);
     ui->Button_StopUDP->setEnabled(false);
-    udpSync->stop();
-    udpSync->quit();
-    qDebug() << "UDP is stop now!";
     disconnect(this,&rsCollectData::send_RGBD_name,udpSync,&udpthread::receive_Subject_Action);
     disconnect(udpSync,&udpthread::udp4startALL,this,&rsCollectData::on_Button_SAVEALL_clicked);
     disconnect(udpSync,&udpthread::udp4stopALL,this,&rsCollectData::on_Button_SAVESTOPALL_clicked);
+
+    udpSync->stop();
+    udpSync->quit();
+    qDebug() << "UDP is stop now!";
 }
 
 
@@ -439,7 +445,8 @@ void rsCollectData::init_BLE_graph(){
 }
 
 void rsCollectData::show_BLE_graph(QVector<qint64> BLEdata){
-    ui->label_ConnectStatus->setText("CONNECTED");
+    ui->label_ConnectStatus->setText("<font color='green'>CONNECTED</font>");
+
     if (BLEdata[0] > mLastEarTime){
         mSumEarTime = mSumEarTime + BLEdata[0] - mLastEarTime;
         save_BLE_cnt++;
@@ -477,7 +484,7 @@ void rsCollectData::show_BLE_graph(QVector<qint64> BLEdata){
 }
 
 void rsCollectData::reset_BLE_graph(){
-    ui->label_ConnectStatus->setText("DISCONNECTED");
+    ui->label_ConnectStatus->setText("<font color='red'>DISCONNECTED</font>");
     ui->label_BLEfps->setText("0");
     key_ACC = 1; key_GYR = 1; key_MAG = 1;
 
