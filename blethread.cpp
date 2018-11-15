@@ -228,6 +228,8 @@ void blethread::disconnectFromDevice()
 void blethread::deviceDisconnected()
 {
     emit resetGraph();
+    disconnect(this, &blethread::startSaveCSV, this, &blethread::saveBLEData);
+    mBLEstorage.clear();
 }
 
 //----------------------//
@@ -308,7 +310,7 @@ void blethread::receiveSaveFlag(bool save_ble_flag){
     mSaveFlag = save_ble_flag;
     mutex.unlock();
     if (mSaveFlag){
-        mfilename = QString("/home/skaegy/Data/EAR/%1_%2%3.csv").arg(mSubjectName).arg(mActionName).arg(mIndexName);
+        mfilename = QString("/home/skaegy/Data/EAR/%1%2_EAR.csv").arg(mActionName).arg(mIndexName);
     }
     else{
         emit startSaveCSV(); // Save ble data while stop save is clicked

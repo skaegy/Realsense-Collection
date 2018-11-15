@@ -20,16 +20,19 @@ rsCaptureThread::~rsCaptureThread()
 }
 
 void rsCaptureThread::run(){
-    align align(RS2_STREAM_COLOR);
+    align alignRGBD(RS2_STREAM_COLOR);
     disparity_transform depth_to_disparity(true);
     disparity_transform disparity_to_depth(false);
 
     while(!abort){
         usleep(100);
         frameset rs_d415 = pipe.wait_for_frames();
-        //frameset align_d415 = align.process(rs_d415);
-        frame depth_frame = rs_d415.get_depth_frame();
-        frame color_frame = rs_d415.get_color_frame();
+        //qint64 t1 = QDateTime::currentDateTime().toMSecsSinceEpoch();
+        frameset align_d415 = alignRGBD.process(rs_d415);
+        //qint64 t2 = QDateTime::currentDateTime().toMSecsSinceEpoch();
+        //qDebug() << "Align time = " << t2 - t1;
+        frame depth_frame = align_d415.get_depth_frame();
+        frame color_frame = align_d415.get_color_frame();
         qint64 rsTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
 
         emit sendRGBDFrame(color_frame, depth_frame, rsTime);

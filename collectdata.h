@@ -63,9 +63,6 @@ public:
     explicit rsCollectData(QWidget *parent = nullptr);
     ~rsCollectData();
 
-    const QString ear_uuid = "47442014-0f63-5b27-9122-728099603712";
-    const QString IMU_uuid = "47442020-0f63-5b27-9122-728099603712";
-
 private slots:
     // UI
     void on_Button_openRSThread_clicked();

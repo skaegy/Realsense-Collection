@@ -65,10 +65,10 @@ void rssavethread::run(){
             cv::Mat BufDepth = *itImDepth;
 
             std::string Color_names = mColor_path.toStdString();
-            imwrite(Color_names + Image_name, BufColor);
+            imwrite(Color_names + Image_name + ".jpg", BufColor);
 
             std::string Depth_names = mDepth_path.toStdString();
-            imwrite(Depth_names + Image_name, BufDepth);
+            imwrite(Depth_names + Image_name + ".png", BufDepth);
 
             mutex.lock();
             mlColor.pop_front();
@@ -92,7 +92,7 @@ void rssavethread::save_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 
         Mat Buf_depth_mat = depth_mat.clone();
         char image_name[20];
 
-        sprintf(image_name, "%13lld.png", timestamp);
+        sprintf(image_name, "%13lld", timestamp);
         mutex.lock();
         mlColor.push_back(Buf_color_mat);
         mlDepth.push_back(Buf_depth_mat);

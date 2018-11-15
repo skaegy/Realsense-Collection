@@ -44,6 +44,8 @@ rsCollectData::~rsCollectData()
     delete rsFilter;
     delete rsSave;
     delete udpSync;
+    EARSensor->disconnectFromDevice();
+    EARSensor->wait();
     delete EARSensor;
     delete ui;
 }
@@ -361,6 +363,7 @@ void rsCollectData::receiveItem(QListWidgetItem *item){
 
 void rsCollectData::itemActivated(QListWidgetItem *item){
     QString text = item->text();
+    ui->List_BLE->setEnabled(false);
 
     int index = text.indexOf(' ');
     if (index == -1)
@@ -484,8 +487,12 @@ void rsCollectData::show_BLE_graph(QVector<qint64> BLEdata){
 }
 
 void rsCollectData::reset_BLE_graph(){
+    // Set UI parameters
     ui->label_ConnectStatus->setText("<font color='red'>DISCONNECTED</font>");
+    ui->List_BLE->setEnabled(true);
     ui->label_BLEfps->setText("0");
+
+    // Reset Graph
     key_ACC = 1; key_GYR = 1; key_MAG = 1;
 
     ui->customPlot_ACC->graph(0)->data()->clear();
