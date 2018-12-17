@@ -50,7 +50,7 @@ void udpthread::run(){
     char buffer[128];
     memset(buffer, 0, BUF_SIZE);
     qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    QString filename = QString("/home/skaegy/Data/VICON/time_%1.txt").arg(currTime);
+    QString filename = QString("/home/skaegy/data/Capture/VICON/time_%1.txt").arg(currTime);
     QFile timefile(filename);
     timefile.open(QIODevice::ReadWrite);
     QTextStream timestream(&timefile);
@@ -70,11 +70,11 @@ void udpthread::run(){
 
                 if (receiveKey == 1){
                     emit udp4startALL();
-                    timestream << "START " << mSubjectName << " " << mActionName << mIndexName << " " << currTime << endl;
+                    timestream << "START " << mActionName << mIndexName << " " << currTime << endl;
                 }
                 else if(receiveKey == 2){
                     emit udp4stopALL();
-                    timestream << "STOP " << mSubjectName << " " << mActionName << mIndexName << " " << currTime << endl;
+                    timestream << "STOP " << mActionName << mIndexName << " " << currTime << endl;
                 }
             }
         }

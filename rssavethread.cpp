@@ -126,6 +126,6 @@ void rssavethread::save_depth_mat(cv::Mat &depth_mat, qint64 timestamp){
 }
 
 void rssavethread::receive_RGBD_name(QString Subject, QString Action, QString Index){
-    mColor_path = QString("/home/skaegy/Data/RGBD/%1/%2/rgb/").arg(Subject).arg(Action+Index);
-    mDepth_path = QString("/home/skaegy/Data/RGBD/%1/%2/depth/").arg(Subject).arg(Action+Index);
+    mColor_path = QString("/home/skaegy/data/Capture/RGBD/%1/%2/rgb/").arg(Subject).arg(Action+Index);
+    mDepth_path = QString("/home/skaegy/data/Capture/RGBD/%1/%2/depth/").arg(Subject).arg(Action+Index);
 }

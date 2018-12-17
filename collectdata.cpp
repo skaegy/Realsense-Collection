@@ -169,7 +169,7 @@ void rsCollectData::show_color_mat(Mat &color_mat, qint64 timestamp){
     cv::Mat QTmat = color_mat.clone();
     cvtColor(QTmat,QTmat,CV_BGR2RGB);
     QImage qcolor = QImage((QTmat.data), IMG_WIDTH, IMG_HEIGHT, QImage::Format_RGB888);
-    QImage qcolorshow = qcolor.scaled(IMG_WIDTH, IMG_HEIGHT).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QImage qcolorshow = qcolor.scaled(IMG_WIDTH, IMG_HEIGHT).scaled(480, 280, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->RGBImg->setPixmap(QPixmap::fromImage(qcolorshow));
     ui->RGBImg->resize(qcolorshow.size());
 
@@ -192,7 +192,7 @@ void rsCollectData::show_color_mat(Mat &color_mat, qint64 timestamp){
 
 void rsCollectData::show_depth_mat(Mat &depth_mat, qint64 timestamp){
     QImage qdepth = QImage( (depth_mat.data), depth_mat.cols, depth_mat.rows, QImage::Format_RGB16);
-    QImage qdepthshow = qdepth.scaled(depth_mat.cols, depth_mat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QImage qdepthshow = qdepth.scaled(depth_mat.cols, depth_mat.rows).scaled(480, 280, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
 
@@ -214,16 +214,23 @@ void rsCollectData::show_depth_mat(Mat &depth_mat, qint64 timestamp){
 }
 
 void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp){
+    // Show color images
     cv::Mat QTmat = color_mat.clone();
     cvtColor(QTmat,QTmat,CV_BGR2RGB);
     QImage qcolor = QImage((QTmat.data), QTmat.cols, QTmat.rows, QImage::Format_RGB888);
-    QImage qcolorshow = qcolor.scaled(QTmat.cols, QTmat.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QImage qcolorshow = qcolor.scaled(QTmat.cols, QTmat.rows).scaled(480, 280, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->RGBImg->setPixmap(QPixmap::fromImage(qcolorshow));
     ui->RGBImg->resize(qcolorshow.size());
 
+    // Show depth images
     cv::Mat QDepth = depth_mat.clone();
-    QImage qdepth = QImage( (QDepth.data), QDepth.cols, QDepth.rows, QImage::Format_RGB16 );
-    QImage qdepthshow = qdepth.scaled(QDepth.cols, QDepth.rows).scaled(480, 360, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    // Color map of depth show
+    cv::Mat QDepth8( QDepth.cols, QDepth.rows, CV_8UC1);
+    QDepth.convertTo(QDepth8,CV_8UC1, 255.0/6000.0);
+    cv::Mat QDepthRender;
+    applyColorMap(QDepth8, QDepthRender, 2);
+    QImage qdepth = QImage( (QDepthRender.data), QDepthRender.cols, QDepthRender.rows, QImage::Format_RGB888 );
+    QImage qdepthshow = qdepth.scaled(QDepthRender.cols, QDepthRender.rows).scaled(480, 280, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ui->DepthImg->setPixmap(QPixmap::fromImage(qdepthshow));
     ui->DepthImg->resize(qdepthshow.size());
 
@@ -464,21 +471,21 @@ void rsCollectData::show_BLE_graph(QVector<qint64> BLEdata){
             ui->customPlot_ACC->graph(0)->addData(key_ACC, BLEdata[1]);
             ui->customPlot_ACC->graph(1)->addData(key_ACC, BLEdata[2]);
             ui->customPlot_ACC->graph(2)->addData(key_ACC, BLEdata[3]);
-            ui->customPlot_ACC->xAxis->setRange(key_ACC, 50, Qt::AlignRight);
+            ui->customPlot_ACC->xAxis->setRange(key_ACC, 200, Qt::AlignRight);
             ++key_ACC;
             ui->customPlot_ACC->replot();
             // ========= PLOT GYR ========= //
             ui->customPlot_GYR->graph(0)->addData(key_GYR, BLEdata[4]);
             ui->customPlot_GYR->graph(1)->addData(key_GYR, BLEdata[5]);
             ui->customPlot_GYR->graph(2)->addData(key_GYR, BLEdata[6]);
-            ui->customPlot_GYR->xAxis->setRange(key_GYR, 50, Qt::AlignRight);
+            ui->customPlot_GYR->xAxis->setRange(key_GYR, 200, Qt::AlignRight);
             ++key_GYR;
             ui->customPlot_GYR->replot();
             // ========= PLOT MAG ========= //
             ui->customPlot_MAG->graph(0)->addData(key_MAG, BLEdata[7]);
             ui->customPlot_MAG->graph(1)->addData(key_MAG, BLEdata[8]);
             ui->customPlot_MAG->graph(2)->addData(key_MAG, BLEdata[9]);
-            ui->customPlot_MAG->xAxis->setRange(key_MAG, 50, Qt::AlignRight);
+            ui->customPlot_MAG->xAxis->setRange(key_MAG, 200, Qt::AlignRight);
             ++key_MAG;
             ui->customPlot_MAG->replot();
         }
