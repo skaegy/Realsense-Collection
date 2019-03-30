@@ -47,7 +47,7 @@ void rsFilterThread::run(){
     disparity_transform disparity_to_depth(false);
 
     while(!abort){
-        if (mlColorFrame.size()>0 && mlDepthFrame.size()>0 && mlTimestamp.size()>0){
+        if (!mlColorFrame.empty() && !mlDepthFrame.empty() && !mlTimestamp.empty()){
             mutex.lock();
             frame color_frame = mlColorFrame.back();
             frame depth_frame = mlDepthFrame.back();

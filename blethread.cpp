@@ -83,20 +83,21 @@ void blethread::deviceScanError(QBluetoothDeviceDiscoveryAgent::Error error)
 
 void blethread::addDevice(const QBluetoothDeviceInfo &info)
 {
-    QString label = QString("%1 %2").arg(info.address().toString()).arg(info.name());
+    if (info.name() == "e-AR2016"){
+        QString label = QString("%1 %2").arg(info.address().toString()).arg(info.name());
 
-    DeviceInfo *d = new DeviceInfo(info);
-    devices.append(d);
+        DeviceInfo *d = new DeviceInfo(info);
+        devices.append(d);
 
-    QListWidgetItem *item = new QListWidgetItem(label);
-    QBluetoothLocalDevice::Pairing pairingStatus = localDevice->pairingStatus(info.address());
-    if (pairingStatus == QBluetoothLocalDevice::Paired || pairingStatus == QBluetoothLocalDevice::AuthorizedPaired )
-        item->setTextColor(QColor(Qt::green));
-    else
-        item->setTextColor(QColor(Qt::black));
+        QListWidgetItem *item = new QListWidgetItem(label);
+        QBluetoothLocalDevice::Pairing pairingStatus = localDevice->pairingStatus(info.address());
+        if (pairingStatus == QBluetoothLocalDevice::Paired || pairingStatus == QBluetoothLocalDevice::AuthorizedPaired )
+            item->setTextColor(QColor(Qt::green));
+        else
+            item->setTextColor(QColor(Qt::black));
 
-    emit sendItem(item);
-
+        emit sendItem(item);
+    }
         //ui->List_BLE->addItem(item);
 
 }
@@ -310,7 +311,7 @@ void blethread::receiveSaveFlag(bool save_ble_flag){
     mSaveFlag = save_ble_flag;
     mutex.unlock();
     if (mSaveFlag){
-        mfilename = QString("/home/skaegy/data/Capture/EAR/%1%2_EAR.csv").arg(mActionName).arg(mIndexName);
+        mfilename = QString("/home/hamlyn/data/Yao/Capture/EAR/%1%2_EAR.csv").arg(mActionName).arg(mIndexName);
     }
     else{
         emit startSaveCSV(); // Save ble data while stop save is clicked

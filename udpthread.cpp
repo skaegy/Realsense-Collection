@@ -50,7 +50,7 @@ void udpthread::run(){
     char buffer[128];
     memset(buffer, 0, BUF_SIZE);
     qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    QString filename = QString("/home/skaegy/data/Capture/VICON/time_%1.txt").arg(currTime);
+    QString filename = QString("/home/hamlyn/data/Yao/Capture/VICON/time_%1.txt").arg(currTime);
     QFile timefile(filename);
     timefile.open(QIODevice::ReadWrite);
     QTextStream timestream(&timefile);

@@ -11,7 +11,7 @@ const int CAPACITY = 1;
 // UDP parameters
 const int PORT_SCAN = 8888;
 const unsigned long BUF_SIZE = 128;
-const int PORT_MS = 2;
+const int PORT_MS = 10;
 
 // Ear sensor parameters
 const QString ear_uuid = "47442014-0f63-5b27-9122-728099603712";
