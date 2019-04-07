@@ -59,22 +59,28 @@ void udpthread::run(){
         memset(&src, 0, sizeof(src));
         int sz = recvfrom(sockfd, buffer, BUF_SIZE, 0, reinterpret_cast<sockaddr*>(&src), &src_len);
         if (sz > 0){
+            QByteArray qBuffer(QByteArray::fromRawData(buffer, 15)); //convert to QByteArray
+
             // The cliend should only send '1' or '2' for communication
             // '1' -- start all;  '2' -- stop all
-            char receiveCh = buffer[0];
-            int receiveKey = receiveCh - '0';
+            // char receiveCh = buffer[0];
+            int receiveKey = qBuffer.left(1).toInt();
+            qint64 receiveTimestamp = qBuffer.right(14).toLongLong();
+
             if (receiveKey==1 || receiveKey==2){
                 // Timestamp of the received signal
                 qint64 currTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-                qDebug() << "[UDP]Received SIGNAL from VICON" << currTime << " Received key is " << receiveKey;
+                qDebug() << "[UDP] SIGNAL: " << receiveKey <<  " (linux)~" << currTime
+                         << " (VICON)~" << receiveTimestamp;
+
 
                 if (receiveKey == 1){
                     emit udp4startALL();
-                    timestream << "START " << mActionName << mIndexName << " " << currTime << endl;
+                    timestream << "START " << mActionName << mIndexName << " " << currTime << " " << receiveTimestamp << endl;
                 }
                 else if(receiveKey == 2){
                     emit udp4stopALL();
-                    timestream << "STOP " << mActionName << mIndexName << " " << currTime << endl;
+                    timestream << "STOP " << mActionName << mIndexName << " " << currTime << " " << receiveTimestamp << endl;
                 }
             }
         }
