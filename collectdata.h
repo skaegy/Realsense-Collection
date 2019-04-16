@@ -101,6 +101,8 @@ private slots:
     void on_Button_SAVESTOPALL_clicked();
 
 
+    void on_Button_saveImage_clicked();
+
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);
     void send_BLEsave_flag(bool save_ble_flag);

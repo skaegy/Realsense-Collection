@@ -30,6 +30,7 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->Button_StopUDP->setEnabled(false);
     ui->Button_QuitBLE->setEnabled(false);
     ui->Button_ClearBLE->setEnabled(false);
+    ui->Button_saveImage->setEnabled(false);
 
     // --- Connect signal and slot
     connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),this, SLOT(itemActivated(QListWidgetItem*)));
@@ -54,6 +55,7 @@ void rsCollectData::on_Button_openRSThread_clicked()
 {
     // --- UI Status
     ui->Button_saveRGBD->setEnabled(true);
+    ui->Button_saveImage->setEnabled(true);
     ui->Button_closeRSThread->setEnabled(true);
     ui->Button_openRSThread->setEnabled(false);
     ui->lable_color_fps->setText("0");
@@ -78,6 +80,7 @@ void rsCollectData::on_Button_closeRSThread_clicked()
     ui->Button_closeRSThread->setEnabled(false);
     ui->Button_openRSThread->setEnabled(true);
     ui->Button_saveRGBD->setEnabled(false);
+    ui->Button_saveImage->setEnabled(false);
     ui->Button_stopSaveRGBD->setEnabled(false);
     ui->lable_color_fps->setText("0");
     ui->lable_depth_fps->setText("0");
@@ -587,3 +590,8 @@ void rsCollectData::on_Button_SAVESTOPALL_clicked()
 
 
 
+
+void rsCollectData::on_Button_saveImage_clicked()
+{
+    rsFilter->receiveSaveImageSignal();
+}

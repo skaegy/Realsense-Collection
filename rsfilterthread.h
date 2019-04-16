@@ -30,6 +30,7 @@ public slots:
     void receiveColorFrame(rs2::frame ColorFrame);
     void receiveDepthFrame(rs2::frame DepthFrame);
     void receiveRGBDFrame(rs2::frame ColorFrame, rs2::frame DepthFrame, qint64 timestamp);
+    void receiveSaveImageSignal();
 
 private:
     cv::Mat rsDepthFrame2Mat(rs2::frame DepthFrame);
@@ -46,6 +47,7 @@ private:
     rs2::frame mColorFrame;
     rs2::frame mDepthFrame;
     //const int CAPACITY = 3;
+    bool mSaveImageFlag = false;
 
     std::list<rs2::frame> mlColorFrame;
     std::list<rs2::frame> mlDepthFrame;

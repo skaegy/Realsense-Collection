@@ -70,6 +70,19 @@ void rsFilterThread::run(){
             Mat depth_mat = rsDepthFrame2Mat(depth_frame);
             Mat send_depth = depth_mat.clone();
 
+            if (mSaveImageFlag){
+                mutex.lock();
+                qDebug() << " Screen shot! save images to ~/Pictures ";
+                qint64 timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
+                QString path = "/home/hamlyn/Pictures/";
+                QString color_name = path.append(QString::number(timestamp).append(QString(".jpg")));
+                QString depth_name = path.append(QString::number(timestamp).append(QString(".png")));
+                imwrite(color_name.toStdString(), send_color);
+                imwrite(depth_name.toStdString(), send_depth);
+
+                mSaveImageFlag = false;
+                mutex.unlock();
+            }
             //emit sendDepthFiltered(send_depth, timestamp);
             emit sendRGBDFiltered(send_color, send_depth, timestamp);
         }
@@ -125,4 +138,8 @@ void rsFilterThread::receiveRGBDFrame(rs2::frame ColorFrame, rs2::frame DepthFra
         mlTimestamp.pop_back();
     }
     mutex.unlock();
+}
+
+void rsFilterThread::receiveSaveImageSignal(){
+    mSaveImageFlag = true;
 }

@@ -492,6 +492,19 @@ background-color: rgb(136, 138, 133);</string>
      <string>Save RGBD </string>
     </property>
    </widget>
+   <widget class="QPushButton" name="Button_saveImage">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>100</y>
+      <width>89</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save image</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
