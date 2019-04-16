@@ -73,11 +73,13 @@ private slots:
     void on_Button_stopSaveBLE_clicked();
     void on_Button_UDP_clicked();
     void on_Button_StopUDP_clicked();
+    void on_Button_saveImage_clicked();
 
     void on_Text_subject_name_textChanged();
     void on_Text_subject_action_textChanged();
     void on_Text_subject_index_textChanged();
     void on_checkPlotGraph_stateChanged(int arg1);
+    void on_checkPersistency_stateChanged(int arg1);
 
     // RGB-D
     void show_color_mat(cv::Mat &color_mat, qint64 timestamp);
@@ -85,7 +87,6 @@ private slots:
     void show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
 
     // BLE plot
-
     void init_BLE_graph();
     void show_BLE_graph(QVector<qint64> BLEdata);
     void reset_BLE_graph();
@@ -101,17 +102,19 @@ private slots:
     void on_Button_SAVESTOPALL_clicked();
 
 
-    void on_Button_saveImage_clicked();
+    void on_spatial_alpha_actionTriggered(int action);
 
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);
     void send_BLEsave_flag(bool save_ble_flag);
+    void send_RS_temporalFilter_params(bool persistency);
 
 private:
     // UI
     Ui::rsCollectData *ui;
     int InitIdx = 1;
     bool mbShowGraph = true;
+    bool mbRS_persistency = false;
 
     // Thread
     rsCaptureThread* rsCapture;

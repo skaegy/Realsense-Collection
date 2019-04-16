@@ -32,6 +32,7 @@ void rsFilterThread::startFilter()
     spat_filter.set_option(RS2_OPTION_FILTER_MAGNITUDE, 2);
     spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.5);
     spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20);
+    temp_filter.set_option(RS2_OPTION_HOLES_FILL, 8);
     temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 0.8f);
     temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 50);
 
@@ -83,6 +84,8 @@ void rsFilterThread::run(){
                 mSaveImageFlag = false;
                 mutex.unlock();
             }
+
+            qDebug() << " filter";
             //emit sendDepthFiltered(send_depth, timestamp);
             emit sendRGBDFiltered(send_color, send_depth, timestamp);
         }
@@ -142,4 +145,9 @@ void rsFilterThread::receiveRGBDFrame(rs2::frame ColorFrame, rs2::frame DepthFra
 
 void rsFilterThread::receiveSaveImageSignal(){
     mSaveImageFlag = true;
+}
+
+void rsFilterThread::receive_temporalFilter_params(bool persistency)
+{
+    mRS_tempPersistency = persistency;
 }

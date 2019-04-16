@@ -31,6 +31,7 @@ public slots:
     void receiveDepthFrame(rs2::frame DepthFrame);
     void receiveRGBDFrame(rs2::frame ColorFrame, rs2::frame DepthFrame, qint64 timestamp);
     void receiveSaveImageSignal();
+    void receive_temporalFilter_params(bool persistency);
 
 private:
     cv::Mat rsDepthFrame2Mat(rs2::frame DepthFrame);
@@ -44,10 +45,12 @@ private:
     // Parameters
     rs2::spatial_filter spat_filter;    // Spatial filter of depth image
     rs2::temporal_filter temp_filter;   // Temporal filter of depth image
+    rs2::hole_filling_filter holefill_filter;
     rs2::frame mColorFrame;
     rs2::frame mDepthFrame;
     //const int CAPACITY = 3;
     bool mSaveImageFlag = false;
+    bool mRS_tempPersistency = false;
 
     std::list<rs2::frame> mlColorFrame;
     std::list<rs2::frame> mlDepthFrame;

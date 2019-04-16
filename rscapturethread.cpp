@@ -37,7 +37,6 @@ void rsCaptureThread::run(){
 
         emit sendRGBDFrame(color_frame, depth_frame, rsTime);
 
-
         /*
         depth_frame = depth_to_disparity.process(depth_frame);
         depth_frame = spat_filter.process(depth_frame);
@@ -75,6 +74,9 @@ void rsCaptureThread::startCollect()
                                  .as<rs2::video_stream_profile>();
 
     auto intrins = color_stream.get_intrinsics();
+    qDebug() << "=====================================";
+    qDebug() << "        yao.guo@imperial.ac.uk       ";
+    qDebug() << "=====================================";
     qDebug() << intrins.width << "X" << intrins.height << " = "
              << "[COEFFS]" << intrins.coeffs[0] << " " << intrins.coeffs[1] << " " << intrins.coeffs[2]
              << " [fx]" << intrins.fx << " [fy]" << intrins.fy << " [ppx]" << intrins.ppx << " [ppy]" << intrins.ppy;

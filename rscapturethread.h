@@ -46,8 +46,6 @@ private:
     rs2::pipeline_profile rs_device;
     rs2::device selected_device;
     rs2::sensor depth_sensor;
-    //spatial_filter spat_filter;    //
-    //temporal_filter temp_filter;   //
     cv::Mat color_mat, depth_mat;
 };
 

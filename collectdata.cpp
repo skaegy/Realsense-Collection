@@ -32,6 +32,9 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->Button_ClearBLE->setEnabled(false);
     ui->Button_saveImage->setEnabled(false);
 
+    ui->spatial_alpha->setRange(1, 100);
+    ui->spatial_alpha->setSingleStep(1);
+
     // --- Connect signal and slot
     connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),this, SLOT(itemActivated(QListWidgetItem*)));
 
@@ -70,6 +73,9 @@ void rsCollectData::on_Button_openRSThread_clicked()
     // --- Connect signals and slots
     connect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
     connect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
+    //connect(this, &rsCollectData::send_RS_temporalFilter_params, rsFilter, &rsFilterThread::receive_temporalFilter_params);
+
+    // old version -- connect
     //connect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
     //connect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
     //connect(rsCapture, SIGNAL(sendRGBDMat(cv::Mat&,cv::Mat&,qint64)), this, SLOT(show_RGBD_mat(cv::Mat&,cv::Mat&,qint64)));
@@ -87,7 +93,9 @@ void rsCollectData::on_Button_closeRSThread_clicked()
 
     disconnect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
     disconnect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
+    //disconnect(this, &rsCollectData::send_RS_temporalFilter_params, rsFilter, &rsFilterThread::receive_temporalFilter_params);
 
+    // old version -- disconnect
     //disconnect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
     //disconnect(rsFilter,SIGNAL(sendRGBDFiltered(cv::Mat&, cv::Mat&, qint64)), this, SLOT(show_RGBD_mat(cv::Mat&, cv::Mat&, qint64)));
     //disconnect(rsFilter,SIGNAL(sendColorFiltered(cv::Mat&, qint64)), this, SLOT(show_color_mat(cv::Mat&,qint64)));
@@ -589,9 +597,23 @@ void rsCollectData::on_Button_SAVESTOPALL_clicked()
 }
 
 
-
-
 void rsCollectData::on_Button_saveImage_clicked()
 {
     rsFilter->receiveSaveImageSignal();
+}
+
+void rsCollectData::on_checkPersistency_stateChanged(int arg1)
+{
+    if (arg1 == 0)
+        mbRS_persistency = false;
+    else
+        mbRS_persistency = true;
+
+    emit send_RS_temporalFilter_params(mbRS_persistency);
+}
+
+void rsCollectData::on_spatial_alpha_actionTriggered(int action)
+{
+    qDebug() << ui->spatial_alpha->value();
+    ui->spatial_alpha_value->setText(QString("%1").arg(ui->spatial_alpha->value()));
 }
