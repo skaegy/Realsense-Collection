@@ -101,18 +101,18 @@ private slots:
     void on_Button_SAVEALL_clicked();
     void on_Button_SAVESTOPALL_clicked();
 
-
-    void on_spatial_alpha_actionTriggered(int action);
+    // Sliders
+    void on_spatial_alpha_sliderMoved(int position);
 
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);
     void send_BLEsave_flag(bool save_ble_flag);
-    void send_RS_temporalFilter_params(bool persistency);
 
 private:
     // UI
     Ui::rsCollectData *ui;
     int InitIdx = 1;
+    bool mbStartRealsense = false;
     bool mbShowGraph = true;
     bool mbRS_persistency = false;
 

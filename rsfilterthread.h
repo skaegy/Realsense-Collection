@@ -20,6 +20,9 @@ public:
     bool abort;
     void startFilter();
     void stop();
+    rs2::spatial_filter spat_filter;    // Spatial filter of depth image
+    rs2::temporal_filter temp_filter;   // Temporal filter of depth image
+    rs2::hole_filling_filter holefill_filter;
 
 Q_SIGNALS:
     void sendColorFiltered(cv::Mat &color_mat, qint64 timestamp);
@@ -31,7 +34,6 @@ public slots:
     void receiveDepthFrame(rs2::frame DepthFrame);
     void receiveRGBDFrame(rs2::frame ColorFrame, rs2::frame DepthFrame, qint64 timestamp);
     void receiveSaveImageSignal();
-    void receive_temporalFilter_params(bool persistency);
 
 private:
     cv::Mat rsDepthFrame2Mat(rs2::frame DepthFrame);
@@ -43,9 +45,6 @@ protected:
 private:
     QMutex mutex;
     // Parameters
-    rs2::spatial_filter spat_filter;    // Spatial filter of depth image
-    rs2::temporal_filter temp_filter;   // Temporal filter of depth image
-    rs2::hole_filling_filter holefill_filter;
     rs2::frame mColorFrame;
     rs2::frame mDepthFrame;
     //const int CAPACITY = 3;

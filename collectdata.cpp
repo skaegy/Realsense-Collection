@@ -32,7 +32,7 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->Button_ClearBLE->setEnabled(false);
     ui->Button_saveImage->setEnabled(false);
 
-    ui->spatial_alpha->setRange(1, 100);
+    ui->spatial_alpha->setRange(25, 100);
     ui->spatial_alpha->setSingleStep(1);
 
     // --- Connect signal and slot
@@ -56,6 +56,7 @@ rsCollectData::~rsCollectData()
 
 void rsCollectData::on_Button_openRSThread_clicked()
 {
+    mbStartRealsense = true;
     // --- UI Status
     ui->Button_saveRGBD->setEnabled(true);
     ui->Button_saveImage->setEnabled(true);
@@ -83,6 +84,8 @@ void rsCollectData::on_Button_openRSThread_clicked()
 
 void rsCollectData::on_Button_closeRSThread_clicked()
 {
+    mbStartRealsense = false;
+
     ui->Button_closeRSThread->setEnabled(false);
     ui->Button_openRSThread->setEnabled(true);
     ui->Button_saveRGBD->setEnabled(false);
@@ -604,16 +607,19 @@ void rsCollectData::on_Button_saveImage_clicked()
 
 void rsCollectData::on_checkPersistency_stateChanged(int arg1)
 {
-    if (arg1 == 0)
+    if (arg1 == 0){
         mbRS_persistency = false;
-    else
+        rsFilter->temp_filter.set_option(RS2_OPTION_HOLES_FILL, 0);
+    }
+    else{
         mbRS_persistency = true;
-
-    emit send_RS_temporalFilter_params(mbRS_persistency);
+        rsFilter->temp_filter.set_option(RS2_OPTION_HOLES_FILL, 8);
+    }
 }
 
-void rsCollectData::on_spatial_alpha_actionTriggered(int action)
+void rsCollectData::on_spatial_alpha_sliderMoved(int position)
 {
-    qDebug() << ui->spatial_alpha->value();
+    if (mbStartRealsense)
+        rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, float(ui->spatial_alpha->value())/100.0);
     ui->spatial_alpha_value->setText(QString("%1").arg(ui->spatial_alpha->value()));
 }

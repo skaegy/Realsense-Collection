@@ -17,6 +17,4 @@ const int PORT_MS = 10;
 const QString ear_uuid = "47442014-0f63-5b27-9122-728099603712";
 const QString IMU_uuid = "47442020-0f63-5b27-9122-728099603712";
 
-
-
 #endif // SETTINGS_H

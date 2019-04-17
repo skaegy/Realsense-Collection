@@ -740,10 +740,10 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QSlider" name="spatial_alpha">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>700</y>
-     <width>160</width>
-     <height>16</height>
+     <x>60</x>
+     <y>680</y>
+     <width>151</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="orientation">
@@ -753,14 +753,27 @@ background-color: rgb(136, 138, 133);</string>
   <widget class="QLabel" name="spatial_alpha_value">
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>700</y>
+     <x>220</x>
+     <y>680</y>
      <width>61</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>680</y>
+     <width>67</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>delta</string>
    </property>
   </widget>
   <zorder>groupBox_4</zorder>
@@ -795,8 +808,11 @@ background-color: rgb(136, 138, 133);</string>
   <zorder>lable_depth_fps</zorder>
   <zorder>Button_SAVEALL</zorder>
   <zorder>Button_SAVESTOPALL</zorder>
-  <zorder>spatial_alpha</zorder>
   <zorder>spatial_alpha_value</zorder>
+  <zorder>spatial_alpha</zorder>
+  <zorder>verticalSpacer</zorder>
+  <zorder>horizontalSpacer</zorder>
+  <zorder>label</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
