@@ -64,7 +64,12 @@ void rsFilterThread::run(){
             //emit sendColorFiltered(send_color, timestamp);
 
             // Depth frame --> Depth Mat --> Emit Signal
-            qDebug() << temp_filter.get_option(RS2_OPTION_FILTER_SMOOTH_DELTA);
+//            qDebug() << "spatial _ alpha " << spat_filter.get_option(RS2_OPTION_FILTER_SMOOTH_ALPHA);
+//            qDebug() << "spatial _ delta " << spat_filter.get_option(RS2_OPTION_FILTER_SMOOTH_DELTA);
+//            qDebug() << "spatial _ mag " << spat_filter.get_option(RS2_OPTION_FILTER_MAGNITUDE);
+//            qDebug() << "temporal _ alpha " << temp_filter.get_option(RS2_OPTION_FILTER_SMOOTH_ALPHA);
+//            qDebug() << "temporal _ delta " << temp_filter.get_option(RS2_OPTION_FILTER_SMOOTH_DELTA);
+//            qDebug() << "temporal _ persistency " << temp_filter.get_option(RS2_OPTION_HOLES_FILL);
             depth_frame = depth_to_disparity.process(depth_frame);
             depth_frame = spat_filter.process(depth_frame);
             depth_frame = temp_filter.process(depth_frame);

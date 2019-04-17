@@ -79,7 +79,6 @@ private slots:
     void on_Text_subject_action_textChanged();
     void on_Text_subject_index_textChanged();
     void on_checkPlotGraph_stateChanged(int arg1);
-    void on_checkPersistency_stateChanged(int arg1);
 
     // RGB-D
     void show_color_mat(cv::Mat &color_mat, qint64 timestamp);
@@ -101,8 +100,19 @@ private slots:
     void on_Button_SAVEALL_clicked();
     void on_Button_SAVESTOPALL_clicked();
 
-    // Sliders
-    void on_spatial_alpha_sliderMoved(int position);
+
+
+    void on_combo_persistency_currentIndexChanged(int index);
+
+    void on_spatial_alpha_valueChanged(int value);
+
+    void on_spatial_delta_valueChanged(int value);
+
+    void on_spatial_mag_valueChanged(int value);
+
+    void on_temporal_alpha_valueChanged(int value);
+
+    void on_temporal_delta_valueChanged(int value);
 
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);

@@ -32,8 +32,18 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->Button_ClearBLE->setEnabled(false);
     ui->Button_saveImage->setEnabled(false);
 
-    ui->spatial_alpha->setRange(25, 100);
-    ui->spatial_alpha->setSingleStep(1);
+    // --- UI->SLIDER
+    ui->spatial_alpha->setRange(25, 100);   ui->spatial_alpha->setSingleStep(1);
+    ui->spatial_alpha->setValue(50);        ui->spatial_alpha_value->setNum(0.5);
+    ui->spatial_delta->setRange(1,50);      ui->spatial_delta->setSingleStep(1);
+    ui->spatial_delta->setValue(20);        ui->spatial_delta_value->setNum(20);
+    ui->spatial_mag->setRange(1,5);         ui->spatial_mag->setSingleStep(1);
+    ui->spatial_mag->setValue(2);           ui->spatial_mag_value->setNum(2);
+
+    ui->temporal_alpha->setRange(0,100);    ui->temporal_alpha->setSingleStep(1);
+    ui->temporal_alpha->setValue(50);       ui->temporal_alpha_value->setNum(0.5);
+    ui->temporal_delta->setRange(1,100);    ui->temporal_delta->setSingleStep(1);
+    ui->temporal_delta->setValue(50);       ui->temporal_delta_value->setNum(50);
 
     // --- Connect signal and slot
     connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),this, SLOT(itemActivated(QListWidgetItem*)));
@@ -74,7 +84,13 @@ void rsCollectData::on_Button_openRSThread_clicked()
     // --- Connect signals and slots
     connect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
     connect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
-    //connect(this, &rsCollectData::send_RS_temporalFilter_params, rsFilter, &rsFilterThread::receive_temporalFilter_params);
+
+    rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, float(ui->spatial_alpha->value()/100.0));
+    rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, ui->spatial_delta->value());
+    rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_MAGNITUDE, ui->spatial_mag->value());
+    rsFilter->temp_filter.set_option(RS2_OPTION_HOLES_FILL, ui->combo_persistency->currentIndex());
+    rsFilter->temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, float(ui->temporal_alpha->value()/100.0));
+    rsFilter->temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, ui->temporal_delta->value());
 
     // old version -- connect
     //connect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
@@ -174,6 +190,42 @@ void rsCollectData::on_Button_stopSaveRGBD_clicked()
     rsSave->stop();
     rsSave->quit();
     save_RGB_flag = false;
+}
+
+void rsCollectData::on_Button_saveImage_clicked()
+{
+    rsFilter->receiveSaveImageSignal();
+}
+
+void rsCollectData::on_Button_SAVEALL_clicked()
+{
+    if (ui->Button_saveRGBD->isEnabled() && ui->Button_startSaveBLE->isEnabled()){
+        ui->Button_SAVESTOPALL->setEnabled(true);
+        ui->Button_SAVEALL->setEnabled(false);
+        ui->Button_saveRGBD->click();
+        ui->Button_startSaveBLE->click();
+    }
+    else{
+        qDebug() << "[WARNING]Invalid process...  Wait until realsense and EAR sensor are ready...";
+    }
+}
+
+void rsCollectData::on_Button_SAVESTOPALL_clicked()
+{
+    if (ui->Button_stopSaveRGBD->isEnabled() && ui->Button_stopSaveBLE->isEnabled()){
+        ui->Button_SAVESTOPALL->setEnabled(false);
+        ui->Button_SAVEALL->setEnabled(true);
+        ui->Button_stopSaveRGBD->click();
+        ui->Button_stopSaveBLE->click();
+
+        QString Index = ui->Text_subject_index->toPlainText();
+        int idx = Index.toInt();
+        ui->Text_subject_index->setText(QString::number(idx+1));
+
+    }
+    else{
+        qDebug() << "[WARNING]Invalid process... Wait until realsense and EAR sensor are ready...";
+    }
 }
 
 //=============================
@@ -568,58 +620,53 @@ void rsCollectData::on_checkPlotGraph_stateChanged(int arg1)
         mbShowGraph = true;
 }
 
-void rsCollectData::on_Button_SAVEALL_clicked()
+void rsCollectData::on_spatial_alpha_valueChanged(int value)
 {
-    if (ui->Button_saveRGBD->isEnabled() && ui->Button_startSaveBLE->isEnabled()){
-        ui->Button_SAVESTOPALL->setEnabled(true);
-        ui->Button_SAVEALL->setEnabled(false);
-        ui->Button_saveRGBD->click();
-        ui->Button_startSaveBLE->click();
-    }
-    else{
-        qDebug() << "[WARNING]Invalid process...  Wait until realsense and EAR sensor are ready...";
-    }
+    value = value > 100 ? 100 : value;
+    value = value < 25 ? 25 : value;
+    if (mbStartRealsense)
+        rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, float(value/100.0));
+    ui->spatial_alpha_value->setNum(value/100.0);
 }
 
-void rsCollectData::on_Button_SAVESTOPALL_clicked()
+void rsCollectData::on_spatial_delta_valueChanged(int value)
 {
-    if (ui->Button_stopSaveRGBD->isEnabled() && ui->Button_stopSaveBLE->isEnabled()){
-        ui->Button_SAVESTOPALL->setEnabled(false);
-        ui->Button_SAVEALL->setEnabled(true);
-        ui->Button_stopSaveRGBD->click();
-        ui->Button_stopSaveBLE->click();
-
-        QString Index = ui->Text_subject_index->toPlainText();
-        int idx = Index.toInt();
-        ui->Text_subject_index->setText(QString::number(idx+1));
-
-    }
-    else{
-        qDebug() << "[WARNING]Invalid process... Wait until realsense and EAR sensor are ready...";
-    }
+    value = value > 50 ? 50 : value;
+    value = value < 1 ? 1 : value;
+    if (mbStartRealsense)
+        rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, value);
+    ui->spatial_delta_value->setNum(value);
 }
 
-
-void rsCollectData::on_Button_saveImage_clicked()
+void rsCollectData::on_spatial_mag_valueChanged(int value)
 {
-    rsFilter->receiveSaveImageSignal();
+    value = value > 5 ? 5 : value;
+    value = value < 1 ? 1 : value;
+    if (mbStartRealsense)
+        rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_MAGNITUDE, value);
+    ui->spatial_mag_value->setNum(value);
 }
 
-void rsCollectData::on_checkPersistency_stateChanged(int arg1)
+void rsCollectData::on_temporal_alpha_valueChanged(int value)
 {
-    if (arg1 == 0){
-        mbRS_persistency = false;
-        rsFilter->temp_filter.set_option(RS2_OPTION_HOLES_FILL, 0);
-    }
-    else{
-        mbRS_persistency = true;
-        rsFilter->temp_filter.set_option(RS2_OPTION_HOLES_FILL, 8);
-    }
+    value = value > 100 ? 100 : value;
+    value = value < 1 ? 1 : value;
+    if (mbStartRealsense)
+        rsFilter->temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, float(value/100.0));
+    ui->temporal_alpha_value->setNum(value/100.0);
 }
 
-void rsCollectData::on_spatial_alpha_sliderMoved(int position)
+void rsCollectData::on_temporal_delta_valueChanged(int value)
+{
+    value = value > 100 ? 100 : value;
+    value = value < 1 ? 1 : value;
+    if (mbStartRealsense)
+        rsFilter->temp_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, value);
+    ui->temporal_delta_value->setNum(value);
+}
+
+void rsCollectData::on_combo_persistency_currentIndexChanged(int index)
 {
     if (mbStartRealsense)
-        rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, float(ui->spatial_alpha->value())/100.0);
-    ui->spatial_alpha_value->setText(QString("%1").arg(ui->spatial_alpha->value()));
+        rsFilter->temp_filter.set_option(RS2_OPTION_HOLES_FILL, index);
 }
