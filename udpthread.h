@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QFile>
+#include <QDir>
 
 #include <sys/select.h>
 #include <unistd.h>
@@ -12,7 +13,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <thread>
+//#include <thread>
 #include "settings.h"
 
 namespace Ui {

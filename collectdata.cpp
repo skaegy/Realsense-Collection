@@ -670,3 +670,17 @@ void rsCollectData::on_combo_persistency_currentIndexChanged(int index)
     if (mbStartRealsense)
         rsFilter->temp_filter.set_option(RS2_OPTION_HOLES_FILL, index);
 }
+
+void rsCollectData::on_checkEmitter_stateChanged(int arg1)
+{
+    if (arg1 == 2 && mbStartRealsense){
+        if (rsCapture->depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED)){
+            rsCapture->depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f);
+        }
+    }
+    if (arg1 == 0 && mbStartRealsense){
+        if (rsCapture->depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED)){
+            rsCapture->depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f);
+        }
+    }
+}

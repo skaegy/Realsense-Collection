@@ -23,6 +23,7 @@ public:
     void startCollect();
     void stop();
     bool abort;
+    rs2::sensor depth_sensor;
 
 Q_SIGNALS:
     void sendColorMat(cv::Mat &color_mat);
@@ -45,7 +46,6 @@ private:
     rs2::colorizer color_map;
     rs2::pipeline_profile rs_device;
     rs2::device selected_device;
-    rs2::sensor depth_sensor;
     cv::Mat color_mat, depth_mat;
 };
 

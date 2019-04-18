@@ -114,6 +114,8 @@ private slots:
 
     void on_temporal_delta_valueChanged(int value);
 
+    void on_checkEmitter_stateChanged(int arg1);
+
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);
     void send_BLEsave_flag(bool save_ble_flag);

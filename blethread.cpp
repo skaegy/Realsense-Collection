@@ -311,7 +311,7 @@ void blethread::receiveSaveFlag(bool save_ble_flag){
     mSaveFlag = save_ble_flag;
     mutex.unlock();
     if (mSaveFlag){
-        mfilename = QString("/home/hamlyn/data/Yao/Capture/EAR/%1%2_EAR.csv").arg(mActionName).arg(mIndexName);
+        mfilename = QString("%1/data/Yao/Capture/EAR/%2%3_EAR.csv").arg(QDir::homePath()).arg(mActionName).arg(mIndexName);
     }
     else{
         emit startSaveCSV(); // Save ble data while stop save is clicked

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>748</height>
+    <height>720</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -1002,7 +1002,7 @@ background-color: rgb(136, 138, 133);</string>
     </property>
    </widget>
   </widget>
-  <widget class="QCheckBox" name="checkPersistency">
+  <widget class="QCheckBox" name="checkEmitter">
    <property name="geometry">
     <rect>
      <x>39</x>
@@ -1012,7 +1012,10 @@ background-color: rgb(136, 138, 133);</string>
     </rect>
    </property>
    <property name="text">
-    <string>PointCloud</string>
+    <string>Emitter</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QCheckBox" name="checkDepth">
@@ -1050,13 +1053,15 @@ background-color: rgb(136, 138, 133);</string>
     <bool>true</bool>
    </property>
   </widget>
-  <zorder>groupBox</zorder>
   <zorder>group_Realsense</zorder>
+  <zorder>checkEmitter</zorder>
+  <zorder>checkDepth</zorder>
+  <zorder>checkRGB</zorder>
+  <zorder>groupBox</zorder>
   <zorder>group_UDP</zorder>
   <zorder>group_eAR</zorder>
   <zorder>group_Subject</zorder>
   <zorder>RGBBox</zorder>
-  <zorder>layoutWidget</zorder>
   <zorder>DepthBox</zorder>
   <zorder>Button_ScanBLE</zorder>
   <zorder>Button_ClearBLE</zorder>
@@ -1078,15 +1083,6 @@ background-color: rgb(136, 138, 133);</string>
   <zorder>lable_depth_fps</zorder>
   <zorder>Button_SAVEALL</zorder>
   <zorder>Button_SAVESTOPALL</zorder>
-  <zorder>horizontalSpacer</zorder>
-  <zorder>verticalSpacer_2</zorder>
-  <zorder>verticalSpacer_3</zorder>
-  <zorder>horizontalSpacer_2</zorder>
-  <zorder>horizontalSpacer_3</zorder>
-  <zorder>horizontalSpacer_4</zorder>
-  <zorder>verticalSpacer_4</zorder>
-  <zorder>horizontalSpacer_5</zorder>
-  <zorder>horizontalSpacer_6</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

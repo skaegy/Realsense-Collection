@@ -81,9 +81,10 @@ void rsFilterThread::run(){
                 mutex.lock();
                 qDebug() << " Screen shot! save images to ~/Pictures ";
                 qint64 timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
-                QString path = "/home/hamlyn/Pictures/";
-                QString color_name = path.append(QString::number(timestamp).append(QString(".jpg")));
-                QString depth_name = path.append(QString::number(timestamp).append(QString(".png")));
+                QString path = QString("%1/Pictures/").arg(QDir::homePath());
+                QString color_name = path.append(QString("color_")).append(QString::number(timestamp).append(QString(".png")));
+                path = QString("%1/Pictures/").arg(QDir::homePath());
+                QString depth_name = path.append(QString("depth_")).append(QString::number(timestamp).append(QString(".png")));
                 imwrite(color_name.toStdString(), send_color);
                 imwrite(depth_name.toStdString(), send_depth);
 

@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QDebug>
 #include <QMutex>
+#include <QDir>
 #include <QDateTime>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
