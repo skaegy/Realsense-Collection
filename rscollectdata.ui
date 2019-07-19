@@ -239,9 +239,9 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>470</y>
+     <y>490</y>
      <width>311</width>
-     <height>161</height>
+     <height>151</height>
     </rect>
    </property>
    <property name="font">
@@ -344,7 +344,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>40</y>
+     <y>0</y>
      <width>311</width>
      <height>191</height>
     </rect>
@@ -431,7 +431,7 @@ background-color: rgb(136, 138, 133);</string>
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>140</y>
+      <y>156</y>
       <width>121</width>
       <height>25</height>
      </rect>
@@ -444,13 +444,52 @@ background-color: rgb(136, 138, 133);</string>
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>140</y>
+      <y>156</y>
       <width>121</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
      <string>Close Realsense</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_RS_MAX_2">
+    <property name="geometry">
+     <rect>
+      <x>17</x>
+      <y>130</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Power</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Emitter_power_value">
+    <property name="geometry">
+     <rect>
+      <x>242</x>
+      <y>130</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QSlider" name="Emitter_power">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>133</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
   </widget>
@@ -689,9 +728,9 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>230</y>
+     <y>190</y>
      <width>311</width>
-     <height>241</height>
+     <height>301</height>
     </rect>
    </property>
    <property name="title">
@@ -1001,12 +1040,90 @@ background-color: rgb(136, 138, 133);</string>
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="label_RS_disparity">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>240</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Disparity</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="disparity">
+    <property name="geometry">
+     <rect>
+      <x>72</x>
+      <y>243</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="disparity_value">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>240</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QSlider" name="MAX">
+    <property name="geometry">
+     <rect>
+      <x>73</x>
+      <y>273</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="MAX_value">
+    <property name="geometry">
+     <rect>
+      <x>235</x>
+      <y>270</y>
+      <width>67</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_RS_MAX">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>270</y>
+      <width>61</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Max</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QCheckBox" name="checkEmitter">
    <property name="geometry">
     <rect>
      <x>39</x>
-     <y>139</y>
+     <y>94</y>
      <width>104</width>
      <height>23</height>
     </rect>
@@ -1022,7 +1139,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>80</y>
+     <y>34</y>
      <width>68</width>
      <height>23</height>
     </rect>
@@ -1041,7 +1158,7 @@ background-color: rgb(136, 138, 133);</string>
    <property name="geometry">
     <rect>
      <x>39</x>
-     <y>110</y>
+     <y>64</y>
      <width>54</width>
      <height>23</height>
     </rect>

@@ -103,22 +103,21 @@ private slots:
 
 
     void on_combo_persistency_currentIndexChanged(int index);
-
     void on_spatial_alpha_valueChanged(int value);
-
     void on_spatial_delta_valueChanged(int value);
-
     void on_spatial_mag_valueChanged(int value);
-
     void on_temporal_alpha_valueChanged(int value);
-
     void on_temporal_delta_valueChanged(int value);
-
     void on_checkEmitter_stateChanged(int arg1);
+    void on_MAX_valueChanged(int value);
+    void on_disparity_valueChanged(int value);
+
+    void on_Emitter_power_valueChanged(int value);
 
 Q_SIGNALS:
     void send_RGBD_name(QString Subject, QString Action, QString Index);
     void send_BLEsave_flag(bool save_ble_flag);
+    void send_Disparity(int Disparity);
 
 private:
     // UI
@@ -127,6 +126,7 @@ private:
     bool mbStartRealsense = false;
     bool mbShowGraph = true;
     bool mbRS_persistency = false;
+    int MAX_DIST = 5000;
 
     // Thread
     rsCaptureThread* rsCapture;
@@ -152,7 +152,6 @@ private:
 
     // ---- BLE plot ----//
     int key_ACC = 1, key_GYR = 1, key_MAG = 1;  // xlabel of BLE graph
-
 
 
 };

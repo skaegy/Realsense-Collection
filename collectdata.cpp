@@ -44,11 +44,17 @@ rsCollectData::rsCollectData(QWidget *parent) :
     ui->temporal_alpha->setValue(50);       ui->temporal_alpha_value->setNum(0.5);
     ui->temporal_delta->setRange(1,100);    ui->temporal_delta->setSingleStep(1);
     ui->temporal_delta->setValue(50);       ui->temporal_delta_value->setNum(50);
+    ui->disparity->setRange(0,512);         ui->disparity->setSingleStep(2);
+    ui->disparity->setValue(0);             ui->disparity_value->setNum(0);
+    ui->MAX->setRange(500,10000);           ui->MAX->setSingleStep(500);
+    ui->MAX->setValue(5000);                ui->MAX_value->setNum(5);
+    ui->Emitter_power->setRange(0,360);     ui->Emitter_power->setSingleStep(10);
+    ui->Emitter_power->setValue(360);       ui->Emitter_power_value->setNum(360);
 
     // --- Connect signal and slot
     connect(ui->List_BLE, SIGNAL(itemActivated(QListWidgetItem*)),this, SLOT(itemActivated(QListWidgetItem*)));
 
-    //
+    // Initialize BLE graph
     init_BLE_graph();
 }
 
@@ -84,6 +90,7 @@ void rsCollectData::on_Button_openRSThread_clicked()
     // --- Connect signals and slots
     connect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
     connect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
+    connect(this, &rsCollectData::send_Disparity, rsCapture, &rsCaptureThread::receiveDisparity);
 
     rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, float(ui->spatial_alpha->value()/100.0));
     rsFilter->spat_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, ui->spatial_delta->value());
@@ -112,7 +119,7 @@ void rsCollectData::on_Button_closeRSThread_clicked()
 
     disconnect(rsCapture, &rsCaptureThread::sendRGBDFrame, rsFilter, &rsFilterThread::receiveRGBDFrame);
     disconnect(rsFilter,  &rsFilterThread::sendRGBDFiltered, this, &rsCollectData::show_RGBD_mat);
-    //disconnect(this, &rsCollectData::send_RS_temporalFilter_params, rsFilter, &rsFilterThread::receive_temporalFilter_params);
+    disconnect(this, &rsCollectData::send_Disparity, rsCapture, &rsCaptureThread::receiveDisparity);
 
     // old version -- disconnect
     //disconnect(rsCapture, SIGNAL(sendRGBDFrame(rs2::frame,rs2::frame,qint64)),rsFilter,SLOT(receiveRGBDFrame(rs2::frame,rs2::frame,qint64)));
@@ -292,7 +299,8 @@ void rsCollectData::show_RGBD_mat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64
     cv::Mat QDepth = depth_mat.clone();
     // Color map of depth show
     cv::Mat QDepth8( QDepth.cols, QDepth.rows, CV_8UC1);
-    QDepth.convertTo(QDepth8,CV_8UC1, 255.0/6000.0);
+
+    QDepth.convertTo(QDepth8,CV_8UC1, 255.0/MAX_DIST);
     cv::Mat QDepthRender;
     applyColorMap(QDepth8, QDepthRender, 2);
     QImage qdepth = QImage( (QDepthRender.data), QDepthRender.cols, QDepthRender.rows, QImage::Format_RGB888 );
@@ -683,4 +691,31 @@ void rsCollectData::on_checkEmitter_stateChanged(int arg1)
             rsCapture->depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f);
         }
     }
+}
+
+void rsCollectData::on_MAX_valueChanged(int value)
+{
+    // UPDATE VALUE AND UPDATE THE DEPTH MAXIMUM VALUE
+    if (mbStartRealsense)
+        MAX_DIST = value;
+
+    ui->MAX_value->setNum(value);
+}
+
+void rsCollectData::on_disparity_valueChanged(int value)
+{
+    // SET THE DISPARITY VALUE AND UPDATE THE REALSENSE PARAMETER
+    send_Disparity(value);
+    ui->disparity_value->setNum(value);
+}
+
+void rsCollectData::on_Emitter_power_valueChanged(int value)
+{
+    if (mbStartRealsense){
+        if (rsCapture->depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED)){
+            rsCapture->depth_sensor.set_option(RS2_OPTION_LASER_POWER, value);
+        }
+    }
+
+    ui->Emitter_power_value->setNum(value);
 }

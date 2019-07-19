@@ -1,6 +1,7 @@
 #ifndef RSCAPTURETHREAD_H
 #define RSCAPTURETHREAD_H
 #include <rs.hpp>
+#include <rs_advanced_mode.hpp>
 #include <QThread>
 #include <QMutex>
 #include <QObject>
@@ -31,6 +32,9 @@ Q_SIGNALS:
     void sendRGBDMat(cv::Mat &color_mat, cv::Mat &depth_mat, qint64 timestamp);
     void sendRGBDFrame(rs2::frame color_frame, rs2::frame depth_frame, qint64 timestamp);
 
+public slots:
+    void receiveDisparity(int Disparity);
+
 private:
     cv::Mat rsDepthFrame2Mat(rs2::frame DepthFrame);
     cv::Mat rsColorFrame2Mat(rs2::frame ColorFrame);
@@ -46,6 +50,11 @@ private:
     rs2::colorizer color_map;
     rs2::pipeline_profile rs_device;
     rs2::device selected_device;
+
+    // Disparity shift settings
+    bool isDisparityChanged = false;
+    int disparity = 0;
+    //
     cv::Mat color_mat, depth_mat;
 };
 

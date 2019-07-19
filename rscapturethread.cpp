@@ -26,6 +26,15 @@ void rsCaptureThread::run(){
 
     while(!abort){
         usleep(100);
+        // Check the disparity settings
+        if (isDisparityChanged){
+            rs400::advanced_mode advanced = rs400::advanced_mode(selected_device);
+            STDepthTableControl depth_table_control_group = advanced.get_depth_table();
+            depth_table_control_group.disparityShift = disparity;
+            advanced.set_depth_table(depth_table_control_group);
+            isDisparityChanged = false;
+        }
+
         frameset rs_d415 = pipe.wait_for_frames();
         //qint64 t1 = QDateTime::currentDateTime().toMSecsSinceEpoch();
         frameset align_d415 = alignRGBD.process(rs_d415);
@@ -58,7 +67,12 @@ void rsCaptureThread::startCollect()
     rs_cfg.enable_stream(RS2_STREAM_DEPTH, IMG_WIDTH, IMG_HEIGHT, RS2_FORMAT_Z16, IN_FRAME); // Enable default depth
     rs_cfg.enable_stream(RS2_STREAM_COLOR, IMG_WIDTH, IMG_HEIGHT, RS2_FORMAT_BGR8, IN_FRAME);
     rs_device = pipe.start(rs_cfg);
+
     selected_device = rs_device.get_device();
+    rs400::advanced_mode advanced = rs400::advanced_mode(selected_device);
+    STDepthTableControl depth_table_control_group = advanced.get_depth_table();
+    depth_table_control_group.disparityShift = disparity;
+    advanced.set_depth_table(depth_table_control_group);
     depth_sensor = selected_device.first<rs2::depth_sensor>();
 
     if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED)){
@@ -106,4 +120,9 @@ cv::Mat rsCaptureThread::rsDepthFrame2Mat(rs2::frame DepthFrame){
 cv::Mat rsCaptureThread::rsColorFrame2Mat(rs2::frame ColorFrame){
     Mat ColorMat(Size(IMG_WIDTH, IMG_HEIGHT), CV_8UC3, (void*)ColorFrame.get_data(), Mat::AUTO_STEP);
     return ColorMat;
+}
+
+void rsCaptureThread::receiveDisparity(int Disparity){
+    isDisparityChanged = true;
+    disparity = Disparity;
 }
